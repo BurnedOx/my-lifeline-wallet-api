@@ -1,9 +1,10 @@
 {
-  "name": "nest-typescript-starter",
+  "name": "viazon-api",
   "private": true,
   "version": "1.0.0",
   "description": "Nest TypeScript starter repository",
   "license": "MIT",
+  "author": "Mainak Debnath",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
