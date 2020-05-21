@@ -1,5 +1,5 @@
 import { Base } from "./base.entity";
-import { Column, Entity, OneToMany, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, OneToMany, JoinColumn, OneToOne } from "typeorm";
 import { BankDetails } from "interfaces";
 import { Sponsor } from "./sponsor.entity";
 
@@ -30,7 +30,7 @@ export class User extends Base {
     @JoinColumn()
     sponsored: Sponsor[];
 
-    @ManyToOne(type => Sponsor, sponsor => sponsor.sponsored)
+    @OneToOne(type => Sponsor, sponsor => sponsor.sponsored)
     @JoinColumn()
     sponsoredBy: Sponsor;
 }

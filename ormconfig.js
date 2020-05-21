@@ -9,5 +9,5 @@ module.exports = {
     database: DATABASE_NAME,
     synchronize: true,
     logging: true,
-    entities: ["./src/**/*.entity.ts"]
+    entities: ['./dist/**/*.entity.js']
 }
