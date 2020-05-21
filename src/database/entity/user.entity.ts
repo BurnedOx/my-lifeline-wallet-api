@@ -14,23 +14,23 @@ export class User extends Base {
     @Column()
     roll: 'user' | 'admin';
 
-    @Column({default: 'inactive'})
+    @Column({ default: 'inactive' })
     status: 'active' | 'inactive';
 
     @Column()
     contactNumber: number;
 
-    @Column({type: 'jsonb', nullable: true, default: null})
+    @Column({ type: 'jsonb', nullable: true, default: null })
     bankDetails: BankDetails | null;
 
-    @Column({nullable: true, default: null})
+    @Column({ nullable: true, default: null })
     panNumber: number | null;
 
     @OneToMany(type => Sponsor, sponsor => sponsor.sponsoredBy)
     @JoinColumn()
     sponsored: Sponsor[];
 
-    @OneToOne(type => Sponsor, sponsor => sponsor.sponsored)
+    @OneToOne(type => Sponsor, sponsor => sponsor.sponsored, { nullable: true })
     @JoinColumn()
-    sponsoredBy: Sponsor;
+    sponsoredBy: Sponsor | null;
 }
