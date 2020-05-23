@@ -18,6 +18,20 @@ export class RegistrationDTO {
     sponsorId: string;
 }
 
+export class AdminRegistrationDTO {
+    @IsString()
+    @IsNotEmpty()
+    name: string;
+
+    @IsNumber()
+    @IsNotEmpty()
+    mobile: number;
+
+    @IsString()
+    @IsNotEmpty()
+    password: string;
+}
+
 export class LoginDTO {
     @IsString()
     @IsNotEmpty()

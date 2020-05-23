@@ -1,5 +1,4 @@
 import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import * as jwt from 'jsonwebtoken';
 
 @Injectable()
@@ -7,11 +6,11 @@ export class AuthGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
 
-        if (!request.header.authorization) {
+        if (!request.headers.authorization) {
             return false;
         }
 
-        await this.validateToken(request.header.authorization);
+        await this.validateToken(request.headers.authorization);
 
         return true;
     }

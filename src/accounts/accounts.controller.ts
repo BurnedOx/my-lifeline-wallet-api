@@ -1,8 +1,8 @@
 import { Controller, Post, UsePipes, Get, Body, UseGuards } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
-import { ValidationPipe } from 'src/common/validation.pipe';
-import { RegistrationDTO, LoginDTO } from './accounts.dto';
-import { AuthGuard } from 'src/common/auth.guard';
+import { ValidationPipe } from '../common/validation.pipe';
+import { RegistrationDTO, LoginDTO, AdminRegistrationDTO } from './accounts.dto';
+import { AuthGuard } from '../common/auth.guard';
 
 @Controller('accounts')
 export class AccountsController {
@@ -12,6 +12,12 @@ export class AccountsController {
     @UseGuards(new AuthGuard())
     getAllUsers() {
         return this.accountsService.getAll();
+    }
+
+    @Post('admin/register')
+    @UsePipes(new ValidationPipe())
+    registerAdmin(@Body() data: AdminRegistrationDTO) {
+        return this.accountsService.registerAdmin(data);
     }
 
     @Post('register')
