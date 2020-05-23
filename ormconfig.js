@@ -8,6 +8,6 @@ module.exports = {
     password: DATABASE_PASS,
     database: DATABASE_NAME,
     synchronize: true,
-    logging: true,
+    logging: false,
     entities: ['./dist/**/*.entity.js']
 }

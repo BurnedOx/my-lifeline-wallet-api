@@ -1,24 +1,25 @@
 import { Base } from "./base.entity";
-import { Column, Entity, OneToMany, JoinColumn, OneToOne } from "typeorm";
-import { BankDetails } from "interfaces";
-import { Sponsor } from "./sponsor.entity";
+import { Column, Entity, OneToMany, JoinColumn, ManyToOne, BeforeInsert } from "typeorm";
+import { BankDetails, UserRO } from "interfaces";
+import * as bcrypct from 'bcryptjs';
+import * as jwt from 'jsonwebtoken';
 
 @Entity()
 export class User extends Base {
-    @Column()
-    userName: string;
+    @Column('text')
+    name: string;
 
-    @Column()
+    @Column('numeric')
+    mobile: number;
+
+    @Column('text')
     password: string;
 
-    @Column()
+    @Column({ default: 'user' })
     roll: 'user' | 'admin';
 
     @Column({ default: 'inactive' })
     status: 'active' | 'inactive';
-
-    @Column()
-    contactNumber: number;
 
     @Column({ type: 'jsonb', nullable: true, default: null })
     bankDetails: BankDetails | null;
@@ -26,11 +27,34 @@ export class User extends Base {
     @Column({ nullable: true, default: null })
     panNumber: number | null;
 
-    @OneToMany(type => Sponsor, sponsor => sponsor.sponsoredBy)
+    @OneToMany(type => User, user => user.sponsoredBy)
     @JoinColumn()
-    sponsored: Sponsor[];
+    sponsored: User[];
 
-    @OneToOne(type => Sponsor, sponsor => sponsor.sponsored, { nullable: true })
+    @ManyToOne(type => User, user => user.sponsored, { nullable: true })
     @JoinColumn()
-    sponsoredBy: Sponsor | null;
+    sponsoredBy: User | null;
+
+    @BeforeInsert()
+    async hashPassword() {
+        this.password = await bcrypct.hash(this.password, 10);
+    }
+
+    toResponseObject(getToken: boolean = false): UserRO {
+        const { id, name, mobile, bankDetails, panNumber, roll, status, updatedAt, createdAt } = this;
+        const data: UserRO = { id, name, mobile, bankDetails, panNumber, roll, status, updatedAt, createdAt };
+        if (getToken) {
+            data.token = this.token;
+        }
+        return data;
+    }
+
+    async comparePassword(attempt: string) {
+        return await bcrypct.compare(attempt, this.password);
+    }
+
+    private get token() {
+        const { id } = this;
+        return jwt.sign({ id }, process.env.SECRET, { expiresIn: '7d' });
+    }
 }
