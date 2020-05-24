@@ -19,7 +19,9 @@ export class MembersController {
     @Get('downline')
     @UseGuards(new AuthGuard())
     @UsePipes(new ValidationPipe())
-    downlineMembers(@CustomHeader() headers: HeaderDTO) { }
+    downlineMembers(@CustomHeader() headers: HeaderDTO) {
+        return this.membersService.downlineMembers(headers.userId);
+    }
 
     @Get('single-leg')
     @UseGuards(new AuthGuard())
