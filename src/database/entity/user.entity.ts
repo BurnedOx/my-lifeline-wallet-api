@@ -1,8 +1,9 @@
 import { Base } from "./base.entity";
-import { Column, Entity, OneToMany, JoinColumn, ManyToOne, BeforeInsert } from "typeorm";
+import { Column, Entity, OneToMany, JoinColumn, ManyToOne, BeforeInsert, OneToOne } from "typeorm";
 import { BankDetails, UserRO } from "interfaces";
 import * as bcrypct from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
+import { EPin } from "./epin.entity";
 
 @Entity()
 export class User extends Base {
@@ -35,14 +36,23 @@ export class User extends Base {
     @JoinColumn()
     sponsoredBy: User | null;
 
+    @OneToOne(type => EPin, epin => epin.owner, { nullable: true })
+    @JoinColumn()
+    epin: EPin | null;
+
     @BeforeInsert()
     async hashPassword() {
         this.password = await bcrypct.hash(this.password, 10);
     }
 
     toResponseObject(getToken: boolean = false): UserRO {
-        const { id, name, mobile, bankDetails, panNumber, roll, status, updatedAt, createdAt } = this;
-        const data: UserRO = { id, name, mobile, bankDetails, panNumber, roll, status, updatedAt, createdAt };
+        const { id, name, mobile, bankDetails, panNumber, roll, status, sponsoredBy, updatedAt, createdAt } = this;
+        const data: UserRO = {
+            id, name, mobile, bankDetails, panNumber, roll, status, updatedAt, createdAt,
+            sponsoredBy: sponsoredBy ? { id: sponsoredBy.id, name: sponsoredBy.name } : null,
+            epinId: this.epin ? this.epin.id : null,
+            activatedAt: this.epin ? this.epin.updatedAt : null
+        };
         if (getToken) {
             data.token = this.token;
         }

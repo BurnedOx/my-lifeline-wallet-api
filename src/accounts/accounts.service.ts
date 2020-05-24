@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { Repository } from 'typeorm';
 import { RegistrationDTO, LoginDTO, AdminRegistrationDTO } from './accounts.dto';
-import { customAlphabet } from 'nanoid';
+import { generateId } from '../common/utils/generateId'
 
 @Injectable()
 export class AccountsService {
@@ -12,16 +12,14 @@ export class AccountsService {
         private readonly userRepo: Repository<User>
     ) { }
 
-    private readonly generateId = customAlphabet('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 22);
-
     async getAll() {
-        const users = await this.userRepo.find();
+        const users = await this.userRepo.find({ relations: ['sponsoredBy', 'epin'] });
         return users.map(user => user.toResponseObject());
     }
 
     async login(data: LoginDTO) {
         const { userId, password } = data;
-        const user = await this.userRepo.findOne(userId);
+        const user = await this.userRepo.findOne(userId, { relations: ['sponsoredBy', 'epin'] });
 
         if (!user || !(await user.comparePassword(password))) {
             throw new HttpException('Invalid userid/password', HttpStatus.BAD_REQUEST);
@@ -36,7 +34,7 @@ export class AccountsService {
             throw new HttpException('Invalid sponspor id', HttpStatus.BAD_REQUEST);
         }
         const user = await this.userRepo.create({
-            id: this.generateId(),
+            id: generateId(),
             roll: 'user',
             name, password, mobile, sponsoredBy
         });
@@ -47,7 +45,7 @@ export class AccountsService {
     async registerAdmin(data: AdminRegistrationDTO) {
         const { name, mobile, password } = data;
         const user = await this.userRepo.create({
-            id: this.generateId(),
+            id: generateId(),
             roll: 'admin',
             sponsoredBy: null,
             status: 'active',
