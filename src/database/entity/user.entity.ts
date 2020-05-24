@@ -32,7 +32,6 @@ export class User extends Base {
     balance: number;
 
     @OneToMany(type => User, user => user.sponsoredBy)
-    @JoinColumn()
     sponsored: User[];
 
     @ManyToOne(type => User, user => user.sponsored, { nullable: true })
@@ -53,8 +52,8 @@ export class User extends Base {
         const data: UserRO = {
             id, name, mobile, bankDetails, panNumber, roll, status, updatedAt, createdAt,
             sponsoredBy: sponsoredBy ? { id: sponsoredBy.id, name: sponsoredBy.name } : null,
-            epinId: this.epin ? this.epin.id : null,
-            activatedAt: this.epin ? this.epin.updatedAt : null
+            epinId: this.epin?.id ?? null,
+            activatedAt: this.epin?.updatedAt ?? null
         };
         if (getToken) {
             data.token = this.token;

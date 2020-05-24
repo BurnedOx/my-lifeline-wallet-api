@@ -1,4 +1,4 @@
-import { Entity, OneToOne } from "typeorm";
+import { Entity, OneToOne, JoinColumn } from "typeorm";
 import { Base } from "./base.entity";
 import { User } from "./user.entity";
 import { EpinRO } from "interfaces";

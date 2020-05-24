@@ -48,7 +48,7 @@ export class EpinService {
     }
 
     async update(epinId: string, userId: string) {
-        let epin = await this.epinRepo.findOne(epinId);
+        let epin = await this.epinRepo.findOne(epinId, { relations: ['owner'] });
 
         if (!epin) {
             throw new HttpException('Invalid E-Pin', HttpStatus.NOT_FOUND);
@@ -66,12 +66,9 @@ export class EpinService {
             throw new HttpException('User already activated', HttpStatus.BAD_REQUEST);
         }
 
-        return this.connection.transaction(async () => {
-            epin.owner = user;
-            await this.epinRepo.save(epin);
-            user.status = 'active';
-            await this.userRepo.save(user);
-            return user.toResponseObject();
-        });
+        user.epin = epin;
+        user.status = 'active';
+        await this.userRepo.save(user);
+        return user.toResponseObject();
     }
 }
