@@ -1,8 +1,9 @@
-import { Controller, Get, UseGuards, Param, Post, Put, Body } from '@nestjs/common';
+import { Controller, Get, UseGuards, Param, Post, Put, Body, UsePipes } from '@nestjs/common';
 import { EpinService } from './epin.service';
 import { AuthGuard } from 'src/common/auth.guard';
 import { CustomHeader } from 'src/common/decorators/common-header-decorator';
 import { HeaderDTO } from 'src/common/dto/base-header.dto';
+import { ValidationPipe } from 'src/common/validation.pipe';
 
 @Controller('epin')
 export class EpinController {
@@ -22,6 +23,7 @@ export class EpinController {
 
     @Get('my')
     @UseGuards(new AuthGuard())
+    @UsePipes(new ValidationPipe())
     getEpin(@CustomHeader() headers: HeaderDTO) {
         return this.epinService.getEpin(headers.userId);
     }

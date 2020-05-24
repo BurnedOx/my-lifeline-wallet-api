@@ -33,7 +33,8 @@ export class EpinService {
         if (!user) {
             throw new HttpException('User not found', HttpStatus.NOT_FOUND);
         }
-        const epin = await this.epinRepo.findOne({ where: { owner: user } });
+        const epins = await this.epinRepo.find({ relations: ['owner'] });
+        const epin = epins.find(e => e.owner?.id === user.id);
         if (!epin) {
             throw new HttpException('Invalid E-Pin', HttpStatus.NOT_FOUND);
         }

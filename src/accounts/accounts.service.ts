@@ -33,6 +33,9 @@ export class AccountsService {
         if (!sponsoredBy) {
             throw new HttpException('Invalid sponspor id', HttpStatus.BAD_REQUEST);
         }
+        if (sponsoredBy.status !== 'active') {
+            throw new HttpException('Inactive sponsor', HttpStatus.BAD_REQUEST);
+        }
         const user = await this.userRepo.create({
             id: generateId(),
             roll: 'user',
