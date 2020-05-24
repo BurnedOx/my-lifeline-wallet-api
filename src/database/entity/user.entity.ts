@@ -28,6 +28,9 @@ export class User extends Base {
     @Column({ nullable: true, default: null })
     panNumber: number | null;
 
+    @Column('numeric', { default: 0 })
+    balance: number;
+
     @OneToMany(type => User, user => user.sponsoredBy)
     @JoinColumn()
     sponsored: User[];
