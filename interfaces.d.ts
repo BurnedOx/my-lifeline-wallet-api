@@ -38,3 +38,12 @@ export interface EpinRO {
     updatedAt: Date;
     createdAt: Date;
 }
+
+export interface IncomeRO {
+    id: string,
+    ownerId: string,
+    from: Pick<UserRO, 'id' | 'name'>,
+    level: number,
+    amount: number,
+    createdAt: Date
+}
