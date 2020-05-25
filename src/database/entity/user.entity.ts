@@ -47,7 +47,7 @@ export class User extends Base {
     incomes: Income[];
 
     @OneToMany(() => Income, income => income.from)
-    incomeGenerators: Income[];
+    generatedIncomes: Income[];
 
     @BeforeInsert()
     async hashPassword() {
@@ -55,9 +55,9 @@ export class User extends Base {
     }
 
     toResponseObject(getToken: boolean = false): UserRO {
-        const { id, name, mobile, bankDetails, panNumber, roll, status, sponsoredBy, updatedAt, createdAt } = this;
+        const { id, name, mobile, bankDetails, panNumber, roll, status, sponsoredBy, balance, updatedAt, createdAt } = this;
         const data: UserRO = {
-            id, name, mobile, bankDetails, panNumber, roll, status, updatedAt, createdAt,
+            id, name, mobile, bankDetails, panNumber, roll, status, balance, updatedAt, createdAt,
             sponsoredBy: sponsoredBy ? { id: sponsoredBy.id, name: sponsoredBy.name } : null,
             epinId: this.epin?.id ?? null,
             activatedAt: this.epin?.updatedAt ?? null

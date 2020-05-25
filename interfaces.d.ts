@@ -17,6 +17,7 @@ export interface UserRO {
     roll: 'user' | 'admin';
     status: 'active' | 'inactive';
     activatedAt: Date | null;
+    balance: number;
     updatedAt: Date;
     createdAt: Date;
     token?: string;

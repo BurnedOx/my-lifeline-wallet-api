@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, JoinColumn, ManyToMany, Column } from "typeorm";
+import { Entity, ManyToOne, JoinColumn, Column } from "typeorm";
 import { Base } from "./base.entity";
 import { User } from "./user.entity";
 
@@ -11,8 +11,10 @@ export class Income extends Base {
     amount: number;
 
     @ManyToOne(() => User, user => user.incomes)
+    @JoinColumn()
     owner: User;
 
-    @ManyToMany(() => User, user => user.incomeGenerators)
+    @ManyToOne(() => User, user => user.generatedIncomes)
+    @JoinColumn()
     from: User;
 }

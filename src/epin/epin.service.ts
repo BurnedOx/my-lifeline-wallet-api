@@ -1,9 +1,18 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository, InjectConnection } from '@nestjs/typeorm';
 import { EPin } from 'src/database/entity/epin.entity';
-import { Repository, Connection } from 'typeorm';
+import { Repository, getManager, EntityManager } from 'typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { generateId } from 'src/common/utils/generateId';
+import { Income } from 'src/database/entity/income.entity';
+
+const levelIncomeAmount = {
+    1: 50,
+    2: 20,
+    3: 10,
+    4: 5,
+    5: 5
+};
 
 @Injectable()
 export class EpinService {
@@ -14,8 +23,8 @@ export class EpinService {
         @InjectRepository(User)
         private readonly userRepo: Repository<User>,
 
-        @InjectConnection()
-        private readonly connection: Connection
+        @InjectRepository(Income)
+        private readonly incomeRepo: Repository<Income>
     ) { }
 
     async getAll() {
@@ -66,9 +75,34 @@ export class EpinService {
             throw new HttpException('User already activated', HttpStatus.BAD_REQUEST);
         }
 
-        user.epin = epin;
-        user.status = 'active';
+
         await this.userRepo.save(user);
+
+        await getManager().transaction(async trx => {
+            user.epin = epin;
+            user.status = 'active';
+            await trx.save(user);
+            await this.generateIncomes(user, trx);
+        });
+
         return user.toResponseObject();
+    }
+
+    private async generateIncomes(from: User, trx: EntityManager) {
+        let level: number = 1;
+        let sponsor: User = await this.userRepo.findOne(from.sponsoredBy.id, { relations: ['sponsoredBy'] });
+        while (level <= 5 && sponsor.roll === 'user') {
+            const income = await this.incomeRepo.create({
+                id: generateId(),
+                amount: levelIncomeAmount[level],
+                owner: sponsor,
+                level, from
+            });
+            sponsor.balance = sponsor.balance + levelIncomeAmount[level];
+            await trx.save(income);
+            await trx.save(sponsor);
+            sponsor = await this.userRepo.findOne(sponsor.sponsoredBy.id, { relations: ['sponsoredBy'] });
+            level++;
+        }
     }
 }
