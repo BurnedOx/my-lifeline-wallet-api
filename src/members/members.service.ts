@@ -2,6 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { Repository } from 'typeorm';
+import { MemberRO } from 'interfaces';
 
 @Injectable()
 export class MembersService {
@@ -13,29 +14,28 @@ export class MembersService {
     async directMembers(userId: string) {
         const user = await this.checkUser(userId);
         const members = await this.userRepo.find({
-            where: { sponsoredBy: user, status: 'active' },
-            relations: ['sponsoredBy', 'epin'],
+            where: { sponsoredBy: user },
+            relations: ['epin'],
             order: { createdAt: 'DESC' }
         });
-        return members.map(member => member.toResponseObject());
+        return members.map(member => member.toMemberObject(1));
     }
 
     async downlineMembers(userId: string) {
         const user = await this.checkUser(userId);
-        const members = await this.getDownlineList(user);
-        return members.map(m => m.toResponseObject());
+        return await this.getDownlineList(user);
     }
 
-    private async getDownlineList(root: User, downline: User[] = []) {
+    private async getDownlineList(root: User, downline: MemberRO[] = [], level: number = 1) {
         const members = await this.userRepo.find({
-            where: { sponsoredBy: root, status: 'active' },
-            relations: ['sponsoredBy', 'epin'],
+            where: { sponsoredBy: root },
+            relations: ['epin'],
             order: { createdAt: 'DESC' }
         });
 
         for (let member of members) {
-            downline.push(member);
-            await this.getDownlineList(member, downline);
+            downline.push(member.toMemberObject(level));
+            await this.getDownlineList(member, downline, level + 1);
         }
         return downline;
     }

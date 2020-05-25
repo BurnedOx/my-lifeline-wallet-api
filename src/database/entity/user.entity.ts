@@ -1,9 +1,10 @@
 import { Base } from "./base.entity";
 import { Column, Entity, OneToMany, JoinColumn, ManyToOne, BeforeInsert, OneToOne } from "typeorm";
-import { BankDetails, UserRO } from "interfaces";
+import { BankDetails, UserRO, MemberRO } from "interfaces";
 import * as bcrypct from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { EPin } from "./epin.entity";
+import { Income } from "./income.entity";
 
 @Entity()
 export class User extends Base {
@@ -28,7 +29,7 @@ export class User extends Base {
     @Column({ nullable: true, default: null })
     panNumber: number | null;
 
-    @Column('numeric', { default: 0 })
+    @Column({ default: 0 })
     balance: number;
 
     @OneToMany(type => User, user => user.sponsoredBy)
@@ -41,6 +42,12 @@ export class User extends Base {
     @OneToOne(type => EPin, epin => epin.owner, { nullable: true })
     @JoinColumn()
     epin: EPin | null;
+
+    @OneToMany(() => Income, income => income.owner)
+    incomes: Income[];
+
+    @OneToMany(() => Income, income => income.from)
+    incomeGenerators: Income[];
 
     @BeforeInsert()
     async hashPassword() {
@@ -58,6 +65,15 @@ export class User extends Base {
         if (getToken) {
             data.token = this.token;
         }
+        return data;
+    }
+
+    toMemberObject(level: number): MemberRO {
+        const { id, name, status, epin, createdAt } = this;
+        const data: MemberRO = {
+            id, name, level, status, createdAt,
+            activatedAt: epin?.updatedAt ?? null
+        };
         return data;
     }
 

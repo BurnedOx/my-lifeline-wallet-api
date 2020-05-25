@@ -22,6 +22,15 @@ export interface UserRO {
     token?: string;
 }
 
+export interface MemberRO {
+    id: string;
+    name: string;
+    level: number;
+    status: 'active' | 'inactive';
+    activatedAt: Date | null;
+    createdAt: Date;
+}
+
 export interface EpinRO {
     id: string;
     owner: Pick<UserRO, 'id' | 'name'> | null;
