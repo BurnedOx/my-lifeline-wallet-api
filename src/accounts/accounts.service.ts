@@ -76,7 +76,7 @@ export class AccountsService {
         if (!sponsor && !(sponsor.status === 'active')) {
             throw new HttpException('Invalid Sponsor', HttpStatus.BAD_REQUEST);
         }
-        const user = await this.userRepo.findOne(userId, { relations: ['generatedIncomes', 'sponsoredBy'] });
+        const user = await this.userRepo.findOne(userId, { relations: ['generatedIncomes', 'sponsoredBy', 'epin'] });
         if (!user) {
             throw new HttpException('user not found', HttpStatus.NOT_FOUND);
         }
@@ -94,8 +94,9 @@ export class AccountsService {
     private async removePayments(incomes: Income[], trx: EntityManager) {
         const incomesWithOwner = await this.incomeRepo.findByIds(incomes.map(i => i.id), { relations: ['owner'] });
         for (let i of incomesWithOwner) {
-            i.owner.balance = i.owner.balance - levelIncomeAmount[i.level];
-            await trx.save(i.owner);
+            const owner = await this.userRepo.findOne(i.owner.id);
+            owner.balance = owner.balance - i.amount;
+            await trx.save(owner);
         }
         for (let i of incomesWithOwner) {
             await trx.remove(i);
