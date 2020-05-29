@@ -1,7 +1,7 @@
-import { Controller, Post, UsePipes, Get, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, UsePipes, Get, Body, UseGuards, Put } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { ValidationPipe } from '../common/validation.pipe';
-import { RegistrationDTO, LoginDTO, AdminRegistrationDTO } from './accounts.dto';
+import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO } from './accounts.dto';
 import { AuthGuard } from '../common/auth.guard';
 
 @Controller('accounts')
@@ -31,4 +31,12 @@ export class AccountsController {
     login(@Body() data: LoginDTO) {
         return this.accountsService.login(data);
     }
+
+    @Put('update-sponsor')
+    @UseGuards(new AuthGuard())
+    @UsePipes(new ValidationPipe())
+    updateSponsor(@Body() data: SponsorUpdateDTO) {
+        return this.accountsService.updateSponsor(data);
+    }
+
 }

@@ -41,3 +41,11 @@ export class LoginDTO {
     @IsNotEmpty()
     password: string;
 }
+
+export class SponsorUpdateDTO {
+    @IsString()
+    userId: string;
+
+    @IsString()
+    sponsorId: string;
+}
