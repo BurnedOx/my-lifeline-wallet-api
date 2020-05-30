@@ -1,10 +1,13 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { Repository, EntityManager, getManager } from 'typeorm';
 import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO } from './accounts.dto';
 import { generateId } from '../common/utils/generateId'
 import { Income } from 'src/database/entity/income.entity';
+
+const fast2sms = require('fast2sms');
+const options = { API_KEY: '5B3PwvJaMVZSpnKGHs7fkIo60b1rAgNTQ9x2jLOlRCUedYqXyzyF09BlJjmH2zIQDPsik6dZvOLTxfat' };
 
 const levelIncomeAmount = {
     1: 50,
@@ -22,7 +25,9 @@ export class AccountsService {
 
         @InjectRepository(Income)
         private readonly incomeRepo: Repository<Income>
-    ) { }
+    ) {
+        fast2sms.init(options);
+    }
 
     async getAll() {
         const users = await this.userRepo.find({ relations: ['sponsoredBy', 'epin'] });
@@ -54,6 +59,17 @@ export class AccountsService {
             name, password, mobile, sponsoredBy
         });
         await this.userRepo.save(user);
+
+        fast2sms.send({
+            message: `from viazon,\n
+            link: http://viazon-web.s3-website.us-east-2.amazonaws.com/\n
+            User Id: ${user.id}\n
+            Password: ${password}`,
+            to: user.mobile
+        })
+            .then(data => Logger.log(data, 'SMS Sender'))
+            .catch(error => Logger.error(error, 'SMS Sender'));
+
         return user.toResponseObject(true);
     }
 

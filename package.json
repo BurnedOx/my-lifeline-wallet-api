@@ -29,6 +29,7 @@
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.2",
     "dotenv": "^8.2.0",
+    "fast2sms": "^1.0.3",
     "jsonwebtoken": "^8.5.1",
     "nanoid": "^3.1.9",
     "pg": "^8.2.1",
