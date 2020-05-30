@@ -6,6 +6,7 @@ import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO } fro
 import { generateId } from '../common/utils/generateId'
 import { Income } from 'src/database/entity/income.entity';
 import { EPin } from 'src/database/entity/epin.entity';
+import { AwsSnsService } from 'src/aws/services/aws.sns.service';
 
 const levelIncomeAmount = {
     1: 50,
@@ -26,6 +27,8 @@ export class AccountsService {
 
         @InjectRepository(Income)
         private readonly incomeRepo: Repository<Income>,
+
+        private readonly smsService: AwsSnsService,
     ) { }
 
     async getAll() {
@@ -58,6 +61,18 @@ export class AccountsService {
             name, password, mobile, sponsoredBy
         });
         await this.userRepo.save(user);
+
+        this.smsService.sendSMS({
+            Message: `
+                From VIAZON,\n
+                Official site: www.viazon.co\n
+                Name: ${user.name}\n
+                User Id: ${user.id}\n
+                Password: ${data.password}
+            `,
+            Subject: 'Your Viazon Credentials',
+            PhoneNumber: `+91${user.mobile}`
+        });
 
         return user.toResponseObject(true);
     }

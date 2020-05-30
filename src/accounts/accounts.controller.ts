@@ -3,7 +3,6 @@ import { AccountsService } from './accounts.service';
 import { ValidationPipe } from '../common/validation.pipe';
 import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO } from './accounts.dto';
 import { AuthGuard } from '../common/auth.guard';
-// import { AwsSnsService } from 'src/aws/services/aws.sns.service';
 import { HeaderDTO } from 'src/common/dto/base-header.dto';
 import { CustomHeader } from 'src/common/decorators/common-header-decorator';
 
@@ -11,7 +10,6 @@ import { CustomHeader } from 'src/common/decorators/common-header-decorator';
 export class AccountsController {
     constructor(
         private readonly accountsService: AccountsService,
-        // private readonly smsService: AwsSnsService,
     ) { }
 
     @Get('users')
@@ -30,18 +28,6 @@ export class AccountsController {
     @UsePipes(new ValidationPipe())
     register(@Body() data: RegistrationDTO) {
         return this.accountsService.register(data);
-        // this.smsService.sendSMS({
-        //     Message: `
-        //         From VIAZON,\n
-        //         Official site: www.viazon.co\n
-        //         Name: ${user.name}\n
-        //         User Id: ${user.id}\n
-        //         Password: ${data.password}
-        //     `,
-        //     Subject: 'Your Viazon Credentials',
-        //     PhoneNumber: `+91${user.mobile}`
-        // });
-        // return user;
     }
 
     @Post('login')

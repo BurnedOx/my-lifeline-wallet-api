@@ -7,7 +7,7 @@ import { AwsSnsService } from './services/aws.sns.service';
 export class AwsModule {
     static forRootAsync(options: SNSModuleAsyncOptions): DynamicModule {
         return {
-            module: this,
+            module: AwsModule,
             providers: [
                 {
                     provide: CONFIG_CONNECTION_OPTIONS,

@@ -10,14 +10,14 @@ import { EPin } from 'src/database/entity/epin.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Income, EPin]),
-    // AwsModule.forRootAsync({
-    //   useFactory: async () => ({
-    //     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    //     region: process.env.AWS_REGION,
-    //   }),
-    //   inject: [],
-    // }),
+    AwsModule.forRootAsync({
+      useFactory: async () => ({
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        region: process.env.AWS_REGION,
+      }),
+      inject: [],
+    }),
   ],
   controllers: [AccountsController],
   providers: [AccountsService]
