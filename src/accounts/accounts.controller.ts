@@ -33,7 +33,6 @@ export class AccountsController {
         this.smsService.sendSMS({
             Message: `
                 From VIAZON,\n
-                Login link: http://viazon-web.s3-website.us-east-2.amazonaws.com/\n
                 Official site: www.viazon.co\n
                 Name: ${user.name}\n
                 User Id: ${user.id}\n

@@ -1,3 +1,3 @@
 import { customAlphabet } from "nanoid";
 
-export const generateId = customAlphabet('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 6)
+export const generateId = customAlphabet('1234567890', 8)
