@@ -28,20 +28,20 @@ export class AccountsController {
 
     @Post('register')
     @UsePipes(new ValidationPipe())
-    async register(@Body() data: RegistrationDTO) {
-        const user = await this.accountsService.register(data);
-        this.smsService.sendSMS({
-            Message: `
-                From VIAZON,\n
-                Official site: www.viazon.co\n
-                Name: ${user.name}\n
-                User Id: ${user.id}\n
-                Password: ${data.password}
-            `,
-            Subject: 'Your Viazon Credentials',
-            PhoneNumber: `+91${user.mobile}`
-        });
-        return user;
+    register(@Body() data: RegistrationDTO) {
+        return this.accountsService.register(data);
+        // this.smsService.sendSMS({
+        //     Message: `
+        //         From VIAZON,\n
+        //         Official site: www.viazon.co\n
+        //         Name: ${user.name}\n
+        //         User Id: ${user.id}\n
+        //         Password: ${data.password}
+        //     `,
+        //     Subject: 'Your Viazon Credentials',
+        //     PhoneNumber: `+91${user.mobile}`
+        // });
+        // return user;
     }
 
     @Post('login')

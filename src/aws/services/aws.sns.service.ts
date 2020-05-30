@@ -17,7 +17,7 @@ export class AwsSnsService {
             .publish(smsOptions)
             .promise()
             .then((info) => {
-                Logger.log(` success[sendSms]: ${JSON.stringify(info)}`);
+                Logger.log(`success[sendSms]: ${JSON.stringify(info)}`);
                 return [
                     {
                         statusCode: HttpStatus.OK,
