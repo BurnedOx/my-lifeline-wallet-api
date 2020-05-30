@@ -4,10 +4,9 @@ import { EpinService } from './epin.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EPin } from 'src/database/entity/epin.entity';
 import { User } from 'src/database/entity/user.entity';
-import { Income } from 'src/database/entity/income.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([EPin, User, Income])],
+  imports: [TypeOrmModule.forFeature([EPin, User])],
   controllers: [EpinController],
   providers: [EpinService]
 })

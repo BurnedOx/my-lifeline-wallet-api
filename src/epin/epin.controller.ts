@@ -33,11 +33,4 @@ export class EpinController {
     generate() {
         return this.epinService.generate();
     }
-
-    @Put()
-    @UseGuards(new AuthGuard())
-    @UsePipes(new ValidationPipe())
-    activateAccount(@Body() id: string, @CustomHeader() headers: HeaderDTO) {
-        return this.epinService.update(id, headers.userId);
-    }
 }

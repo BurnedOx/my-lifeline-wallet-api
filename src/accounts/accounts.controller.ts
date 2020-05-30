@@ -4,6 +4,8 @@ import { ValidationPipe } from '../common/validation.pipe';
 import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO } from './accounts.dto';
 import { AuthGuard } from '../common/auth.guard';
 import { AwsSnsService } from 'src/aws/services/aws.sns.service';
+import { HeaderDTO } from 'src/common/dto/base-header.dto';
+import { CustomHeader } from 'src/common/decorators/common-header-decorator';
 
 @Controller('accounts')
 export class AccountsController {
@@ -47,6 +49,13 @@ export class AccountsController {
     @UsePipes(new ValidationPipe())
     login(@Body() data: LoginDTO) {
         return this.accountsService.login(data);
+    }
+
+    @Put('activate')
+    @UseGuards(new AuthGuard())
+    @UsePipes(new ValidationPipe())
+    activateAccount(@Body() id: string, @CustomHeader() headers: HeaderDTO) {
+        return this.accountsService.activateAccount(id, headers.userId);
     }
 
     @Put('update-sponsor')

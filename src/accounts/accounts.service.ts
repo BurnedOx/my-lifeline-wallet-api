@@ -5,6 +5,7 @@ import { Repository, EntityManager, getManager } from 'typeorm';
 import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO } from './accounts.dto';
 import { generateId } from '../common/utils/generateId'
 import { Income } from 'src/database/entity/income.entity';
+import { EPin } from 'src/database/entity/epin.entity';
 
 const levelIncomeAmount = {
     1: 50,
@@ -19,6 +20,9 @@ export class AccountsService {
     constructor(
         @InjectRepository(User)
         private readonly userRepo: Repository<User>,
+
+        @InjectRepository(EPin)
+        private readonly epinRepo: Repository<EPin>,
 
         @InjectRepository(Income)
         private readonly incomeRepo: Repository<Income>,
@@ -69,6 +73,38 @@ export class AccountsService {
         });
         await this.userRepo.save(user);
         return user.toResponseObject(true)
+    }
+
+    async activateAccount(epinId: string, userId: string) {
+        let epin = await this.epinRepo.findOne(epinId, { relations: ['owner'] });
+
+        if (!epin) {
+            throw new HttpException('Invalid E-Pin', HttpStatus.NOT_FOUND);
+        }
+        if (epin.owner) {
+            throw new HttpException('E-Pin already used', HttpStatus.BAD_REQUEST);
+        }
+
+        const user = await this.userRepo.findOne(userId, { relations: ['sponsoredBy', 'epin'] });
+
+        if (!user) {
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+        }
+        if (user.status === 'active') {
+            throw new HttpException('User already activated', HttpStatus.BAD_REQUEST);
+        }
+
+
+        await this.userRepo.save(user);
+
+        await getManager().transaction(async trx => {
+            user.epin = epin;
+            user.status = 'active';
+            await trx.save(user);
+            await this.generateIncomes(user, trx);
+        });
+
+        return user.toResponseObject();
     }
 
     async updateSponsor(data: SponsorUpdateDTO) {
