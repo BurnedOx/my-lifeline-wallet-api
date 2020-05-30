@@ -30,8 +30,9 @@ export class AccountsController {
         const user = await this.accountsService.register(data);
         this.smsService.sendSMS({
             Message: `
-                from Viazon,\n
-                link: http://viazon-web.s3-website.us-east-2.amazonaws.com/\n
+                From VIAZON,\n
+                Login link: http://viazon-web.s3-website.us-east-2.amazonaws.com/\n
+                Official site: www.viazon.co\n
                 Name: ${user.name}\n
                 User Id: ${user.id}\n
                 Password: ${data.password}
