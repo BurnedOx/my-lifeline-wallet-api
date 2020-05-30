@@ -1,3 +1,6 @@
+import { ModuleMetadata } from "@nestjs/common/interfaces";
+import { ConfigurationOptions } from 'aws-sdk/lib/config';
+
 export interface BankDetails {
     accountName: string;
     bankName: string;
@@ -46,4 +49,9 @@ export interface IncomeRO {
     level: number,
     amount: number,
     createdAt: Date
+}
+
+export interface SNSModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
+    useFactory: (...args: any[]) => Promise<ConfigurationOptions> | ConfigurationOptions;
+    inject?: any[];
 }

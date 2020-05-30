@@ -1,7 +1,7 @@
 import { Entity, OneToOne, JoinColumn } from "typeorm";
 import { Base } from "./base.entity";
 import { User } from "./user.entity";
-import { EpinRO } from "interfaces";
+import { EpinRO } from "src/interfaces";
 
 @Entity()
 export class EPin extends Base {

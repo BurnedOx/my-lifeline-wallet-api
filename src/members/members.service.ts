@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { Repository } from 'typeorm';
-import { MemberRO } from 'interfaces';
+import { MemberRO } from 'src/interfaces';
 
 @Injectable()
 export class MembersService {

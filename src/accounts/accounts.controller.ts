@@ -3,10 +3,14 @@ import { AccountsService } from './accounts.service';
 import { ValidationPipe } from '../common/validation.pipe';
 import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO } from './accounts.dto';
 import { AuthGuard } from '../common/auth.guard';
+import { AwsSnsService } from 'src/aws/services/aws.sns.service';
 
 @Controller('accounts')
 export class AccountsController {
-    constructor(private readonly accountsService: AccountsService) { }
+    constructor(
+        private readonly accountsService: AccountsService,
+        private readonly smsService: AwsSnsService,
+    ) { }
 
     @Get('users')
     @UseGuards(new AuthGuard())
@@ -22,8 +26,20 @@ export class AccountsController {
 
     @Post('register')
     @UsePipes(new ValidationPipe())
-    register(@Body() data: RegistrationDTO) {
-        return this.accountsService.register(data);
+    async register(@Body() data: RegistrationDTO) {
+        const user = await this.accountsService.register(data);
+        this.smsService.sendSMS({
+            Message: `
+                from Viazon,\n
+                link: http://viazon-web.s3-website.us-east-2.amazonaws.com/\n
+                Name: ${user.name}\n
+                User Id: ${user.id}\n
+                Password: ${data.password}
+            `,
+            Subject: 'Your Viazon Credentials',
+            PhoneNumber: `+91${user.mobile}`
+        });
+        return user;
     }
 
     @Post('login')

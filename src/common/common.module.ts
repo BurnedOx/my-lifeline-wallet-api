@@ -15,4 +15,4 @@ import { LoggingInterceptor } from './logging.interceptor';
         }
     ]
 })
-export class CommonModule {}
+export class CommonModule { }

@@ -1,7 +1,7 @@
 import { Entity, ManyToOne, JoinColumn, Column } from "typeorm";
 import { Base } from "./base.entity";
 import { User } from "./user.entity";
-import { IncomeRO } from "interfaces";
+import { IncomeRO } from "src/interfaces";
 
 @Entity()
 export class Income extends Base {

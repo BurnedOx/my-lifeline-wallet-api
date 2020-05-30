@@ -1,6 +1,6 @@
 import { Base } from "./base.entity";
 import { Column, Entity, OneToMany, JoinColumn, ManyToOne, BeforeInsert, OneToOne } from "typeorm";
-import { BankDetails, UserRO, MemberRO } from "interfaces";
+import { BankDetails, UserRO, MemberRO } from "src/interfaces";
 import * as bcrypct from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { EPin } from "./epin.entity";
