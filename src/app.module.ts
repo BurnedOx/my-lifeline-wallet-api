@@ -7,10 +7,9 @@ import { CommonModule } from './common/common.module';
 import { EpinModule } from './epin/epin.module';
 import { MembersModule } from './members/members.module';
 import { IncomeModule } from './income/income.module';
-import { AwsModule } from './aws/aws.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(), AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, AwsModule],
+  imports: [TypeOrmModule.forRoot(), AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule],
   controllers: [AppController],
   providers: [AppService],
 })
