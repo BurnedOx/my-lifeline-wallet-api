@@ -47,3 +47,13 @@ export interface IncomeRO {
     amount: number,
     createdAt: Date
 }
+
+export type RankName = 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' | 'EMERALD' | 'RUBY' | 'PEARL' | 'DIAMOND' | 'WHITE DIAMOND' | 'BLACK DIAMOND' | 'BLUE DIAMOND' | 'AMBASSADOR';
+
+export interface RankData {
+    type: RankName;
+    direct: number;
+    company: number;
+    income: number;
+    validity: number;
+}

@@ -5,6 +5,8 @@ import * as bcrypct from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { EPin } from "./epin.entity";
 import { Income } from "./income.entity";
+import { ROI } from "./roi.entity";
+import { Rank } from "./rank.entity";
 
 @Entity()
 export class User extends Base {
@@ -48,6 +50,16 @@ export class User extends Base {
 
     @OneToMany(() => Income, income => income.from)
     generatedIncomes: Income[];
+
+    @OneToMany(() => ROI, roi => roi.owner)
+    singleLegIncomes: ROI[];
+
+    @OneToMany(() => Rank, rank => rank.owner)
+    @JoinColumn()
+    ranks: Rank[];
+
+    @ManyToOne(() => Rank, rank => rank.direct, { nullable: true })
+    generatedRank: Rank | null;
 
     @BeforeInsert()
     async hashPassword() {
