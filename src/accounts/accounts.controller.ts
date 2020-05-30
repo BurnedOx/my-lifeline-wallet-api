@@ -3,7 +3,7 @@ import { AccountsService } from './accounts.service';
 import { ValidationPipe } from '../common/validation.pipe';
 import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO } from './accounts.dto';
 import { AuthGuard } from '../common/auth.guard';
-import { AwsSnsService } from 'src/aws/services/aws.sns.service';
+// import { AwsSnsService } from 'src/aws/services/aws.sns.service';
 import { HeaderDTO } from 'src/common/dto/base-header.dto';
 import { CustomHeader } from 'src/common/decorators/common-header-decorator';
 
@@ -11,7 +11,7 @@ import { CustomHeader } from 'src/common/decorators/common-header-decorator';
 export class AccountsController {
     constructor(
         private readonly accountsService: AccountsService,
-        private readonly smsService: AwsSnsService,
+        // private readonly smsService: AwsSnsService,
     ) { }
 
     @Get('users')
