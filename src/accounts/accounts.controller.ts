@@ -49,9 +49,4 @@ export class AccountsController {
     updateSponsor(@Body() data: SponsorUpdateDTO) {
         return this.accountsService.updateSponsor(data);
     }
-
-    @Put('update-activation')
-    updateActivation(@CustomHeader() header: HeaderDTO) {
-        return this.accountsService.updateActivation(header.userId);
-    }
 }
