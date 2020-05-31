@@ -49,10 +49,4 @@ export class AccountsController {
     updateSponsor(@Body() data: SponsorUpdateDTO) {
         return this.accountsService.updateSponsor(data);
     }
-
-    @Put('update-activation')
-    updateActivationDate() {
-        return this.accountsService.updateActivationDate();
-    }
-
 }
