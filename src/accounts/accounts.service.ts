@@ -100,6 +100,7 @@ export class AccountsService {
         await getManager().transaction(async trx => {
             user.epin = epin;
             user.status = 'active';
+            user.activatedAt = new Date();
             await trx.save(user);
             await this.generateIncomes(user, trx);
         });

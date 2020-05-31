@@ -32,6 +32,12 @@ export interface MemberRO {
     createdAt: Date;
 }
 
+export interface SingleLegMemberRO {
+    id: string;
+    name: string;
+    activatedAt: Date | null;
+}
+
 export interface EpinRO {
     id: string;
     owner: Pick<UserRO, 'id' | 'name'> | null;

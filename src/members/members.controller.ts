@@ -26,5 +26,7 @@ export class MembersController {
     @Get('single-leg')
     @UseGuards(new AuthGuard())
     @UsePipes(new ValidationPipe())
-    singleLegMembers(@CustomHeader() headers: HeaderDTO) { }
+    singleLegMembers(@CustomHeader() headers: HeaderDTO) {
+        return this.membersService.singleLegMembers(headers.userId);
+    }
 }

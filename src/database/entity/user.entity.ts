@@ -1,6 +1,6 @@
 import { Base } from "./base.entity";
 import { Column, Entity, OneToMany, JoinColumn, ManyToOne, BeforeInsert, OneToOne } from "typeorm";
-import { BankDetails, UserRO, MemberRO } from "src/interfaces";
+import { BankDetails, UserRO, MemberRO, SingleLegMemberRO } from "src/interfaces";
 import * as bcrypct from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { EPin } from "./epin.entity";
@@ -24,6 +24,9 @@ export class User extends Base {
 
     @Column({ default: 'inactive' })
     status: 'active' | 'inactive';
+
+    @Column({ nullable: true, default: null })
+    activatedAt: Date | null;
 
     @Column({ type: 'jsonb', nullable: true, default: null })
     bankDetails: BankDetails | null;
@@ -67,12 +70,11 @@ export class User extends Base {
     }
 
     toResponseObject(getToken: boolean = false): UserRO {
-        const { id, name, mobile, bankDetails, panNumber, roll, status, sponsoredBy, balance, updatedAt, createdAt } = this;
+        const { id, name, mobile, bankDetails, panNumber, roll, status, sponsoredBy, balance, activatedAt, updatedAt, createdAt } = this;
         const data: UserRO = {
-            id, name, mobile, bankDetails, panNumber, roll, status, balance, updatedAt, createdAt,
+            id, name, mobile, bankDetails, panNumber, roll, status, balance, activatedAt, updatedAt, createdAt,
             sponsoredBy: sponsoredBy ? { id: sponsoredBy.id, name: sponsoredBy.name } : null,
             epinId: this.epin?.id ?? null,
-            activatedAt: this.epin?.updatedAt ?? null
         };
         if (getToken) {
             data.token = this.token;
@@ -81,12 +83,13 @@ export class User extends Base {
     }
 
     toMemberObject(level: number): MemberRO {
-        const { id, name, status, epin, createdAt } = this;
-        const data: MemberRO = {
-            id, name, level, status, createdAt,
-            activatedAt: epin?.updatedAt ?? null
-        };
-        return data;
+        const { id, name, status, activatedAt, createdAt } = this;
+        return { id, name, level, status, createdAt, activatedAt };
+    }
+
+    toSingleLegMemberObject(): SingleLegMemberRO {
+        const { id, name, activatedAt } = this;
+        return { id, name, activatedAt };
     }
 
     async comparePassword(attempt: string) {
