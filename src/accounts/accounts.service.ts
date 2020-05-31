@@ -1,11 +1,14 @@
 import { Injectable, HttpException, HttpStatus, Logger, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
-import { Repository, EntityManager, getManager } from 'typeorm';
+import { Repository, EntityManager, getManager, Not, IsNull } from 'typeorm';
 import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO } from './accounts.dto';
 import { generateId } from '../common/utils/generateId'
 import { Income } from 'src/database/entity/income.entity';
 import { EPin } from 'src/database/entity/epin.entity';
+import { Rank } from 'src/database/entity/rank.entity';
+import { Ranks } from 'src/common/costraints';
+import { ROI } from 'src/database/entity/roi.entity';
 
 const levelIncomeAmount = {
     1: 50,
@@ -26,6 +29,12 @@ export class AccountsService {
 
         @InjectRepository(Income)
         private readonly incomeRepo: Repository<Income>,
+
+        @InjectRepository(Rank)
+        private readonly rankRepo: Repository<Rank>,
+
+        @InjectRepository(ROI)
+        private readonly roiRepo: Repository<ROI>,
     ) { }
 
     async getAll() {
@@ -103,6 +112,7 @@ export class AccountsService {
             user.activatedAt = new Date();
             await trx.save(user);
             await this.generateIncomes(user, trx);
+            await this.generateRanks(trx);
         });
 
         return user.toResponseObject();
@@ -127,6 +137,61 @@ export class AccountsService {
         });
 
         return user.toResponseObject();
+    }
+
+    private async totalSingleLeg(user: User) {
+        if (user.activatedAt === null) return 0;
+        const members = await this.userRepo.find({ where: { activatedAt: Not(IsNull()) } });
+        return members.filter(m => m.activatedAt.getTime() > user.activatedAt.getTime()).length;
+    }
+
+    private async getDirectMembersForRank(user: User) {
+        return await this.userRepo.find({
+            where: {
+                sponsoredBy: user,
+                generatedRank: IsNull()
+            },
+            relations: ['sponsoredBy', 'generatedRank']
+        });
+    }
+
+    private getRank(singleLegCount: number, directCount: number) {
+        for (let i = 0; i < Ranks.length; i++) {
+            if (directCount === Ranks[i].direct
+                && singleLegCount >= Ranks[i].company
+                && (i === Ranks.length - 1 || singleLegCount < Ranks[i + 1]?.company)) {
+                return { ...Ranks[i] };
+            }
+        }
+    }
+
+    private async generateRanks(trx: EntityManager) {
+        const allUsers = await this.userRepo.find({ where: { activatedAt: Not(IsNull()) } });
+        for (let user of allUsers) {
+            const singleLeg = await this.totalSingleLeg(user);
+            const direct = await this.getDirectMembersForRank(user);
+            const existingRanks = await this.rankRepo.find({ where: { owner: user }, relations: ['owner'] });
+            const existingRankNames = existingRanks.map(r => r.rank);
+            const rank = this.getRank(singleLeg, direct.length);
+            if (rank && !(existingRankNames.includes(rank.type))) {
+                const newRank = await this.rankRepo.create({
+                    id: generateId(),
+                    rank: rank.type,
+                    owner: user, direct
+                });
+                await trx.save(newRank);
+                user.balance = user.balance + rank.income;
+                await trx.save(user);
+                const roi = await this.roiRepo.create({
+                    id: generateId(),
+                    creadit: rank.income,
+                    currentBalance: user.balance,
+                    owner: user,
+                    rank: newRank
+                });
+                await trx.save(roi);
+            }
+        }
     }
 
     private async removePayments(incomes: Income[], trx: EntityManager) {

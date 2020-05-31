@@ -62,6 +62,7 @@ export class User extends Base {
     ranks: Rank[];
 
     @ManyToOne(() => Rank, rank => rank.direct, { nullable: true })
+    @JoinColumn()
     generatedRank: Rank | null;
 
     @BeforeInsert()

@@ -1,10 +1,9 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EPin } from 'src/database/entity/epin.entity';
-import { Repository, getManager, EntityManager } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { generateId } from 'src/common/utils/generateId';
-import { Income } from 'src/database/entity/income.entity';
 
 @Injectable()
 export class EpinService {
