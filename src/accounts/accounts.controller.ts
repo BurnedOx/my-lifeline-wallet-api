@@ -50,4 +50,9 @@ export class AccountsController {
         return this.accountsService.updateSponsor(data);
     }
 
+    @Put('update-activation')
+    updateActivationDate() {
+        return this.accountsService.updateActivationDate();
+    }
+
 }

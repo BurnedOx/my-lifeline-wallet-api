@@ -37,6 +37,17 @@ export class AccountsService {
         private readonly roiRepo: Repository<ROI>,
     ) { }
 
+    async updateActivationDate() {
+        const users = await this.userRepo.find({where: {status: 'active', roll: 'user'}});
+        await getManager().transaction(async trx => {
+            for (let user of users) {
+                user.activatedAt = user.updatedAt;
+                await trx.save(user);
+            }
+        });
+        return users.map(u => u.toResponseObject());
+    }
+
     async getAll() {
         const users = await this.userRepo.find({ relations: ['sponsoredBy', 'epin', 'ranks'] });
         return users.map(user => user.toResponseObject());
