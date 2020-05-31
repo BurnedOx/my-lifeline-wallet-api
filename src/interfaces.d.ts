@@ -17,6 +17,7 @@ export interface UserRO {
     roll: 'user' | 'admin';
     status: 'active' | 'inactive';
     activatedAt: Date | null;
+    rank: RankName | null;
     balance: number;
     updatedAt: Date;
     createdAt: Date;
@@ -52,6 +53,15 @@ export interface IncomeRO {
     level: number,
     amount: number,
     createdAt: Date
+}
+
+export interface RoiRO {
+    id: string;
+    credit: number;
+    currentBalance: number;
+    rank: RankName;
+    updatedAt: Date;
+    createdAt: Date;
 }
 
 export type RankName = 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' | 'EMERALD' | 'RUBY' | 'PEARL' | 'DIAMOND' | 'WHITE DIAMOND' | 'BLACK DIAMOND' | 'BLUE DIAMOND' | 'AMBASSADOR';

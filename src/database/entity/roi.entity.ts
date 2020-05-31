@@ -2,11 +2,12 @@ import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
 import { Base } from "./base.entity";
 import { User } from "./user.entity";
 import { Rank } from "./rank.entity";
+import { RoiRO } from "src/interfaces";
 
 @Entity()
 export class ROI extends Base {
     @Column()
-    creadit: number;
+    credit: number;
 
     @Column()
     currentBalance: number;
@@ -18,4 +19,12 @@ export class ROI extends Base {
     @ManyToOne(() => Rank, rank => rank.incomes)
     @JoinColumn()
     rank: Rank;
+
+    toResponseObject(): RoiRO {
+        const { id, credit, currentBalance, rank, updatedAt, createdAt } = this;
+        return {
+            id, credit, currentBalance, updatedAt, createdAt,
+            rank: rank.rank
+        };
+    }
 }

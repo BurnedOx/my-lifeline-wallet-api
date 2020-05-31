@@ -20,6 +20,6 @@ export class RoiService {
             throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
         }
         const rois = await this.roiRepo.find({ where: { owner: user }, relations: ['owner', 'rank'] });
-        return rois;
+        return rois.map(roi => roi.toResponseObject());
     }
 }

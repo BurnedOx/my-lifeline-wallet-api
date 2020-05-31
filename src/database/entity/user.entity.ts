@@ -71,11 +71,12 @@ export class User extends Base {
     }
 
     toResponseObject(getToken: boolean = false): UserRO {
-        const { id, name, mobile, bankDetails, panNumber, roll, status, sponsoredBy, balance, activatedAt, updatedAt, createdAt } = this;
+        const { id, name, mobile, bankDetails, panNumber, roll, status, sponsoredBy, balance, ranks, activatedAt, updatedAt, createdAt } = this;
         const data: UserRO = {
             id, name, mobile, bankDetails, panNumber, roll, status, balance, activatedAt, updatedAt, createdAt,
             sponsoredBy: sponsoredBy ? { id: sponsoredBy.id, name: sponsoredBy.name } : null,
             epinId: this.epin?.id ?? null,
+            rank: ranks ? (ranks[ranks.length - 1]?.rank ?? null) : null
         };
         if (getToken) {
             data.token = this.token;

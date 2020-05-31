@@ -38,13 +38,13 @@ export class AccountsService {
     ) { }
 
     async getAll() {
-        const users = await this.userRepo.find({ relations: ['sponsoredBy', 'epin'] });
+        const users = await this.userRepo.find({ relations: ['sponsoredBy', 'epin', 'ranks'] });
         return users.map(user => user.toResponseObject());
     }
 
     async login(data: LoginDTO) {
         const { userId, password } = data;
-        const user = await this.userRepo.findOne(userId, { relations: ['sponsoredBy', 'epin'] });
+        const user = await this.userRepo.findOne(userId, { relations: ['sponsoredBy', 'epin', 'ranks'] });
 
         if (!user || !(await user.comparePassword(password))) {
             throw new HttpException('Invalid userid/password', HttpStatus.BAD_REQUEST);
@@ -94,7 +94,7 @@ export class AccountsService {
             throw new HttpException('E-Pin already used', HttpStatus.BAD_REQUEST);
         }
 
-        const user = await this.userRepo.findOne(userId, { relations: ['sponsoredBy', 'epin'] });
+        const user = await this.userRepo.findOne(userId, { relations: ['sponsoredBy', 'epin', 'ranks'] });
 
         if (!user) {
             throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -102,9 +102,6 @@ export class AccountsService {
         if (user.status === 'active') {
             throw new HttpException('User already activated', HttpStatus.BAD_REQUEST);
         }
-
-
-        await this.userRepo.save(user);
 
         await getManager().transaction(async trx => {
             user.epin = epin;
@@ -184,7 +181,7 @@ export class AccountsService {
                 await trx.save(user);
                 const roi = await this.roiRepo.create({
                     id: generateId(),
-                    creadit: rank.income,
+                    credit: rank.income,
                     currentBalance: user.balance,
                     owner: user,
                     rank: newRank
