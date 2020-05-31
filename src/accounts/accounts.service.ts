@@ -171,14 +171,14 @@ export class AccountsService {
             const existingRankNames = existingRanks.map(r => r.rank);
             const rank = this.getRank(singleLeg, direct.length);
             if (rank && !(existingRankNames.includes(rank.type))) {
-                user.balance = user.balance + rank.income;
-                await trx.save(user);
                 const newRank = await this.rankRepo.create({
                     id: generateId(),
                     rank: rank.type,
                     owner: user, direct
                 });
                 await trx.save(newRank);
+                user.balance = user.balance + rank.income;
+                await trx.save(user);
                 const roi = await this.roiRepo.create({
                     id: generateId(),
                     credit: rank.income,
