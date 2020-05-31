@@ -171,14 +171,14 @@ export class AccountsService {
             const existingRankNames = existingRanks.map(r => r.rank);
             const rank = this.getRank(singleLeg, direct.length);
             if (rank && !(existingRankNames.includes(rank.type))) {
+                user.balance = user.balance + rank.income;
+                await trx.save(user);
                 const newRank = await this.rankRepo.create({
                     id: generateId(),
                     rank: rank.type,
                     owner: user, direct
                 });
                 await trx.save(newRank);
-                user.balance = user.balance + rank.income;
-                await trx.save(user);
                 const roi = await this.roiRepo.create({
                     id: generateId(),
                     credit: rank.income,
@@ -208,15 +208,15 @@ export class AccountsService {
         let level: number = 1;
         let sponsor: User = await this.userRepo.findOne(from.sponsoredBy.id, { relations: ['sponsoredBy'] });
         while (level <= 5 && sponsor.roll === 'user') {
+            sponsor.balance = sponsor.balance + levelIncomeAmount[level];
+            await trx.save(sponsor);
             const income = await this.incomeRepo.create({
                 id: generateId(),
                 amount: levelIncomeAmount[level],
                 owner: sponsor,
                 level, from
             });
-            sponsor.balance = sponsor.balance + levelIncomeAmount[level];
             await trx.save(income);
-            await trx.save(sponsor);
             sponsor = await this.userRepo.findOne(sponsor.sponsoredBy.id, { relations: ['sponsoredBy'] });
             level++;
         }
