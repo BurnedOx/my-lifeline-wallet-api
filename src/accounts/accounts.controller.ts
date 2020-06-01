@@ -49,9 +49,4 @@ export class AccountsController {
     updateSponsor(@Body() data: SponsorUpdateDTO) {
         return this.accountsService.updateSponsor(data);
     }
-
-    @Delete()
-    deleteUser(@Body() id: string) {
-        return this.accountsService.deleteUser(id);
-    }
 }
