@@ -37,6 +37,13 @@ export class AccountsService {
         private readonly roiRepo: Repository<ROI>,
     ) { }
 
+    async deleteUser(id) {
+        const user = await this.userRepo.findOne(id, {relations: ['generatedIncomes']});
+        await this.incomeRepo.remove(user.generatedIncomes);
+        await this.userRepo.remove(user);
+        return 'ok';
+    }
+
     async getAll() {
         const users = await this.userRepo.find({ relations: ['sponsoredBy', 'epin', 'ranks'] });
         return users.map(user => user.toResponseObject());

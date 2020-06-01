@@ -1,4 +1,4 @@
-import { Controller, Post, UsePipes, Get, Body, UseGuards, Put } from '@nestjs/common';
+import { Controller, Post, UsePipes, Get, Body, UseGuards, Put, Delete } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { ValidationPipe } from '../common/validation.pipe';
 import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO } from './accounts.dto';
@@ -48,5 +48,10 @@ export class AccountsController {
     @UsePipes(new ValidationPipe())
     updateSponsor(@Body() data: SponsorUpdateDTO) {
         return this.accountsService.updateSponsor(data);
+    }
+
+    @Delete()
+    deleteUser(@Body() id: string) {
+        return this.accountsService.deleteUser(id);
     }
 }
