@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, UsePipes } from '@nestjs/common';
+import { Controller, Get, UseGuards, UsePipes, Put, Body } from '@nestjs/common';
 import { RoiService } from './roi.service';
 import { AuthGuard } from 'src/common/auth.guard';
 import { ValidationPipe } from 'src/common/validation.pipe';
@@ -14,5 +14,20 @@ export class RoiController {
     @UsePipes(new ValidationPipe())
     getMyROI(@CustomHeader() header: HeaderDTO) {
         return this.roiService.getMy(header.userId);
+    }
+
+    @Get('state')
+    @UseGuards(new AuthGuard())
+    @UsePipes(new ValidationPipe())
+    getState() {
+        return this.roiService.roiGenerationState;
+    }
+
+    @Put('generate')
+    @UseGuards(new AuthGuard())
+    @UsePipes(new ValidationPipe())
+    toggleState(@Body() state: boolean) {
+        this.roiService.roiGenerationState = state;
+        return 'ok';
     }
 }
