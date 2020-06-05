@@ -109,7 +109,7 @@ export class AccountsService {
             user.activatedAt = new Date();
             await trx.save(user);
             await this.generateIncomes(user, trx);
-            await this.generateRanks(trx);
+            this.generateRanks(trx);
         });
 
         return user.toResponseObject();
