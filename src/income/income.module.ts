@@ -8,6 +8,7 @@ import { User } from 'src/database/entity/user.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Income, User])],
   controllers: [IncomeController],
-  providers: [IncomeService]
+  providers: [IncomeService],
+  exports: [IncomeService]
 })
 export class IncomeModule { }

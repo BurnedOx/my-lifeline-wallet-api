@@ -8,6 +8,6 @@ import { EPin } from 'src/database/entity/epin.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [MembersController],
-  providers: [MembersService]
+  providers: [MembersService],
 })
 export class MembersModule {}

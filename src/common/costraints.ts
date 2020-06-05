@@ -1,5 +1,13 @@
 import { RankData } from "src/interfaces";
 
+export const levelIncomeAmount = {
+    1: 50,
+    2: 20,
+    3: 10,
+    4: 5,
+    5: 5
+};
+
 export const Ranks: RankData[] = [
     {
         type: 'BRONZE',

@@ -9,12 +9,13 @@ import { EpinModule } from './epin/epin.module';
 import { MembersModule } from './members/members.module';
 import { IncomeModule } from './income/income.module';
 import { RoiModule } from './roi/roi.module';
+import { RankModule } from './rank/rank.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(),
     ScheduleModule.forRoot(),
-    AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, RoiModule
+    AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, RoiModule, RankModule
   ],
   controllers: [AppController],
   providers: [AppService],

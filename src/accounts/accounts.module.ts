@@ -3,14 +3,15 @@ import { AccountsController } from './accounts.controller';
 import { AccountsService } from './accounts.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
-import { Income } from 'src/database/entity/income.entity';
 import { EPin } from 'src/database/entity/epin.entity';
-import { Rank } from 'src/database/entity/rank.entity';
-import { ROI } from 'src/database/entity/roi.entity';
+import { RankModule } from 'src/rank/rank.module';
+import { IncomeModule } from 'src/income/income.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Income, EPin, Rank, ROI]),
+    TypeOrmModule.forFeature([User, EPin]),
+    RankModule,
+    IncomeModule
   ],
   controllers: [AccountsController],
   providers: [AccountsService]

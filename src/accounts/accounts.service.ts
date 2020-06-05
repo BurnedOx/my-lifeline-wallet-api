@@ -1,40 +1,25 @@
 import { Injectable, HttpException, HttpStatus, Logger, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
-import { Repository, EntityManager, getManager, Not, IsNull } from 'typeorm';
+import { Repository, getManager } from 'typeorm';
 import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO } from './accounts.dto';
 import { generateId } from '../common/utils/generateId'
-import { Income } from 'src/database/entity/income.entity';
 import { EPin } from 'src/database/entity/epin.entity';
-import { Rank } from 'src/database/entity/rank.entity';
-import { Ranks } from 'src/common/costraints';
-import { ROI } from 'src/database/entity/roi.entity';
-
-const levelIncomeAmount = {
-    1: 50,
-    2: 20,
-    3: 10,
-    4: 5,
-    5: 5
-};
+import { RankService } from 'src/rank/rank.service';
+import { IncomeService } from 'src/income/income.service';
 
 @Injectable()
 export class AccountsService {
     constructor(
         @InjectRepository(User)
         private readonly userRepo: Repository<User>,
-
+ 
         @InjectRepository(EPin)
         private readonly epinRepo: Repository<EPin>,
 
-        @InjectRepository(Income)
-        private readonly incomeRepo: Repository<Income>,
+        private readonly incomeService: IncomeService,
 
-        @InjectRepository(Rank)
-        private readonly rankRepo: Repository<Rank>,
-
-        @InjectRepository(ROI)
-        private readonly roiRepo: Repository<ROI>,
+        private readonly rankService: RankService,
     ) { }
 
     async getAll() {
@@ -108,8 +93,8 @@ export class AccountsService {
             user.status = 'active';
             user.activatedAt = new Date();
             await trx.save(user);
-            await this.generateIncomes(user, trx);
-            await this.generateRanks(trx);
+            await this.incomeService.generateIncomes(user, trx);
+            await this.rankService.generateRanks(trx);
         });
 
         return user.toResponseObject();
@@ -129,96 +114,10 @@ export class AccountsService {
         await getManager().transaction(async trx => {
             user.sponsoredBy = sponsor;
             await trx.save(user);
-            await this.removePayments(user.generatedIncomes, trx);
-            await this.generateIncomes(user, trx);
+            await this.incomeService.removePayments(user.generatedIncomes, trx);
+            await this.incomeService.generateIncomes(user, trx);
         });
 
         return user.toResponseObject();
-    }
-
-    private async totalSingleLeg(user: User) {
-        if (user.activatedAt === null) return 0;
-        const members = await this.userRepo.find({ where: { activatedAt: Not(IsNull()) } });
-        return members.filter(m => m.activatedAt.getTime() > user.activatedAt.getTime()).length;
-    }
-
-    private async getDirectMembersForRank(user: User) {
-        return await this.userRepo.find({
-            where: {
-                sponsoredBy: user,
-                generatedRank: IsNull()
-            },
-            relations: ['sponsoredBy', 'generatedRank']
-        });
-    }
-
-    private getRank(singleLegCount: number, directCount: number) {
-        for (let i = 0; i < Ranks.length; i++) {
-            if (directCount === Ranks[i].direct
-                && singleLegCount >= Ranks[i].company
-                && (i === Ranks.length - 1 || singleLegCount < Ranks[i + 1]?.company)) {
-                return { ...Ranks[i] };
-            }
-        }
-    }
-
-    private async generateRanks(trx: EntityManager) {
-        const allUsers = await this.userRepo.find({ where: { activatedAt: Not(IsNull()) } });
-        for (let user of allUsers) {
-            const singleLeg = await this.totalSingleLeg(user);
-            const direct = await this.getDirectMembersForRank(user);
-            const existingRanks = await this.rankRepo.find({ where: { owner: user }, relations: ['owner'] });
-            const existingRankNames = existingRanks.map(r => r.rank);
-            const rank = this.getRank(singleLeg, direct.length);
-            if (rank && !(existingRankNames.includes(rank.type))) {
-                const newRank = await this.rankRepo.create({
-                    id: generateId(),
-                    rank: rank.type,
-                    owner: user, direct
-                });
-                await trx.save(newRank);
-                user.balance = user.balance + rank.income;
-                await trx.save(user);
-                const roi = await this.roiRepo.create({
-                    id: generateId(),
-                    credit: rank.income,
-                    currentBalance: user.balance,
-                    owner: user,
-                    rank: newRank
-                });
-                await trx.save(roi);
-            }
-        }
-    }
-
-    private async removePayments(incomes: Income[], trx: EntityManager) {
-        const incomesWithOwner = await this.incomeRepo.findByIds(incomes.map(i => i.id), { relations: ['owner'] });
-        for (let i of incomesWithOwner) {
-            const owner = await this.userRepo.findOne(i.owner.id);
-            owner.balance = owner.balance - i.amount;
-            await trx.save(owner);
-        }
-        for (let i of incomesWithOwner) {
-            await trx.remove(i);
-        }
-    }
-
-    private async generateIncomes(from: User, trx: EntityManager) {
-        if (from.status === 'inactive') return;
-        let level: number = 1;
-        let sponsor: User = await this.userRepo.findOne(from.sponsoredBy.id, { relations: ['sponsoredBy'] });
-        while (level <= 5 && sponsor.roll === 'user') {
-            sponsor.balance = sponsor.balance + levelIncomeAmount[level];
-            await trx.save(sponsor);
-            const income = await this.incomeRepo.create({
-                id: generateId(),
-                amount: levelIncomeAmount[level],
-                owner: sponsor,
-                level, from
-            });
-            await trx.save(income);
-            sponsor = await this.userRepo.findOne(sponsor.sponsoredBy.id, { relations: ['sponsoredBy'] });
-            level++;
-        }
     }
 }
