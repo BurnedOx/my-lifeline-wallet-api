@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, UsePipes } from '@nestjs/common';
+import { Controller, Get, UseGuards, UsePipes, Put } from '@nestjs/common';
 import { MembersService } from './members.service';
 import { AuthGuard } from 'src/common/auth.guard';
 import { ValidationPipe } from 'src/common/validation.pipe';
@@ -28,5 +28,11 @@ export class MembersController {
     @UsePipes(new ValidationPipe())
     singleLegMembers(@CustomHeader() headers: HeaderDTO) {
         return this.membersService.singleLegMembers(headers.userId);
+    }
+
+    @Put('update-single-leg')
+    @UseGuards(new AuthGuard())
+    updateSingleLeg() {
+        return this.membersService.updateSingleLeg();
     }
 }

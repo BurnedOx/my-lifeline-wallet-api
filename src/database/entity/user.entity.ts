@@ -1,5 +1,5 @@
 import { Base } from "./base.entity";
-import { Column, Entity, OneToMany, JoinColumn, ManyToOne, BeforeInsert, OneToOne } from "typeorm";
+import { Column, Entity, OneToMany, JoinColumn, ManyToOne, BeforeInsert, OneToOne, ManyToMany, JoinTable } from "typeorm";
 import { BankDetails, UserRO, MemberRO, SingleLegMemberRO } from "src/interfaces";
 import * as bcrypct from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
@@ -27,6 +27,9 @@ export class User extends Base {
 
     @Column({ nullable: true, default: null })
     activatedAt: Date | null;
+
+    @Column({ default: 0 })
+    totalSingleLeg: number;
 
     @Column({ type: 'jsonb', nullable: true, default: null })
     bankDetails: BankDetails | null;

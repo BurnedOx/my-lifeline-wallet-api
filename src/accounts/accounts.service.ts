@@ -96,7 +96,7 @@ export class AccountsService {
             await this.incomeService.generateIncomes(user, trx);
         });
 
-        this.rankService.generateRanks();
+        this.rankService.generateRanks(user.id);
 
         return user.toResponseObject();
     }

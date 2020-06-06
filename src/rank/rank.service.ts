@@ -18,16 +18,20 @@ export class RankService {
         private readonly userRepo: Repository<User>,
     ) { }
 
-    async generateRanks() {
+    async generateRanks(userId: string) {
         try {
-            const allUsers = await this.userRepo.find({ where: { activatedAt: Not(IsNull()) } });
+            const allUsers = await this.userRepo.find({
+                where: { activatedAt: Not(IsNull()), id: Not(userId) },
+                relations: ['ranks'],
+            });
             await getManager().transaction(async trx => {
                 for (let user of allUsers) {
-                    const singleLeg = await this.totalSingleLeg(user);
+                    user.totalSingleLeg += 1;
+                    await trx.save(user);
                     const direct = await this.getDirectMembersForRank(user);
-                    const existingRanks = await this.rankRepo.find({ where: { owner: user }, relations: ['owner'] });
+                    const existingRanks = user.ranks;
                     const existingRankNames = existingRanks.map(r => r.rank);
-                    const rank = this.getRank(singleLeg, direct.length);
+                    const rank = this.getRank(user.totalSingleLeg, direct.length);
                     if (rank && !(existingRankNames.includes(rank.type))) {
                         const newRank = this.rankRepo.create({
                             id: generateId(),
@@ -42,12 +46,6 @@ export class RankService {
         } catch (e) {
             this.logging.error('Rank generation unsuccessful', e);
         }
-    }
-
-    private async totalSingleLeg(user: User) {
-        if (user.activatedAt === null) return 0;
-        const members = await this.userRepo.find({ where: { activatedAt: Not(IsNull()) } });
-        return members.filter(m => m.activatedAt.getTime() > user.activatedAt.getTime()).length;
     }
 
     private async getDirectMembersForRank(user: User) {

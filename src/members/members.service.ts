@@ -1,7 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
-import { Repository, Not, IsNull } from 'typeorm';
+import { Repository, Not, IsNull, getManager } from 'typeorm';
 import { MemberRO } from 'src/interfaces';
 
 @Injectable()
@@ -10,6 +10,19 @@ export class MembersService {
         @InjectRepository(User)
         private readonly userRepo: Repository<User>,
     ) { }
+
+    async updateSingleLeg() {
+        const users = await this.userRepo.find({ where: { activatedAt: Not(IsNull()) } });
+        await getManager().transaction(async trx => {
+            for (let user of users) {
+                const singleLegMembers = await this.getSingleLeg(user);
+                user.totalSingleLeg = singleLegMembers.length;
+                trx.save(user);
+            }
+        });
+
+        return 'ok';
+    }
 
     async directMembers(userId: string) {
         const user = await this.checkUser(userId);
@@ -27,14 +40,8 @@ export class MembersService {
 
     async singleLegMembers(userId: string) {
         const user = await this.checkUser(userId);
-        const allMembers = await this.userRepo.find({
-            where: { activatedAt: Not(IsNull()) },
-            order: { createdAt: 'DESC' },
-        });
-        const slMembers = allMembers
-            .filter(m => m.activatedAt.getTime() > user.activatedAt.getTime())
-            .map(m => m.toSingleLegMemberObject());
-        return slMembers;
+        const members = await this.getSingleLeg(user);
+        return members.map(m => m.toSingleLegMemberObject());
     }
 
     private async getDownlineList(root: User, downline: MemberRO[] = [], level: number = 1) {
@@ -59,5 +66,18 @@ export class MembersService {
             throw new HttpException('Inactive User', HttpStatus.BAD_REQUEST);
         }
         return user;
+    }
+
+    private async getSingleLeg(user: User) {
+        if (user.activatedAt === null) {
+            throw new HttpException('Inactive User', HttpStatus.BAD_REQUEST);
+        }
+
+        const allMembers = await this.userRepo.find({
+            where: { activatedAt: Not(IsNull()) },
+            order: { createdAt: 'DESC' },
+        });
+
+        return allMembers.filter(m => m.activatedAt.getTime() > user.activatedAt.getTime());
     }
 }
