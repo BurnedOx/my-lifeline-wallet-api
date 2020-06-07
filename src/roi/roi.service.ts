@@ -65,6 +65,12 @@ export class RoiService {
         Logger.log(`ROI generated for ${new Date().toDateString()}`, 'ROI service');
     }
 
+    async deleteAll() {
+        const roi = await this.roiRepo.find();
+        await this.roiRepo.remove(roi);
+        return 'ok';
+    }
+
     private async generateROI(owner: User, rank: Rank, trx: EntityManager) {
         const doneROIs = await this.roiRepo.find({ where: { owner, rank }, relations: ['owner', 'rank'] });
         const rankObj = Ranks.find(r => r.type === rank.rank);

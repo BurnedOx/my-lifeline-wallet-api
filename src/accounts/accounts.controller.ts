@@ -49,4 +49,10 @@ export class AccountsController {
     updateSponsor(@Body() data: SponsorUpdateDTO) {
         return this.accountsService.updateSponsor(data);
     }
+
+    @Put('wallet-reset')
+    @UseGuards()
+    resetWallets() {
+        return this.accountsService.resetBalance();
+    }
 }

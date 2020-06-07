@@ -121,4 +121,15 @@ export class AccountsService {
 
         return user.toResponseObject();
     }
+
+    async resetBalance() {
+        const users = await this.userRepo.find();
+        await getManager().transaction(async trx => {
+            for (let user of users) {
+                user.balance = 0;
+                trx.save(user);
+            }
+        });
+        return 'ok';
+    }
 }
