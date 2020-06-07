@@ -4,7 +4,6 @@ import { ROI } from 'src/database/entity/roi.entity';
 import { Repository, Not, IsNull, getManager, EntityManager } from 'typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { Cron } from '@nestjs/schedule';
-import { async } from 'rxjs/internal/scheduler/async';
 import { Rank } from 'src/database/entity/rank.entity';
 import { Ranks } from 'src/common/costraints';
 import { generateId } from 'src/common/utils/generateId';
