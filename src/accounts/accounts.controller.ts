@@ -1,7 +1,7 @@
 import { Controller, Post, UsePipes, Get, Body, UseGuards, Put, Delete } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { ValidationPipe } from '../common/validation.pipe';
-import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO } from './accounts.dto';
+import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO, UpdatePasswordDTO } from './accounts.dto';
 import { AuthGuard } from '../common/auth.guard';
 import { HeaderDTO } from 'src/common/dto/base-header.dto';
 import { CustomHeader } from 'src/common/decorators/common-header-decorator';
@@ -41,6 +41,13 @@ export class AccountsController {
     @UsePipes(new ValidationPipe())
     activateAccount(@Body() id: string, @CustomHeader() headers: HeaderDTO) {
         return this.accountsService.activateAccount(id, headers.userId);
+    }
+
+    @Put('password')
+    @UseGuards(new AuthGuard())
+    @UsePipes(new ValidationPipe())
+    changePassword(@Body() data: UpdatePasswordDTO, @CustomHeader() headers: HeaderDTO) {
+        return this.accountsService.updatePassword(data, headers.userId);
     }
 
     @Put('update-sponsor')

@@ -2,18 +2,19 @@ import { Injectable, HttpException, HttpStatus, Logger, Inject } from '@nestjs/c
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { Repository, getManager } from 'typeorm';
-import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO } from './accounts.dto';
+import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO, UpdatePasswordDTO } from './accounts.dto';
 import { generateId } from '../common/utils/generateId'
 import { EPin } from 'src/database/entity/epin.entity';
 import { RankService } from 'src/rank/rank.service';
 import { IncomeService } from 'src/income/income.service';
+import * as bcrypct from 'bcryptjs';
 
 @Injectable()
 export class AccountsService {
     constructor(
         @InjectRepository(User)
         private readonly userRepo: Repository<User>,
- 
+
         @InjectRepository(EPin)
         private readonly epinRepo: Repository<EPin>,
 
@@ -101,6 +102,20 @@ export class AccountsService {
         return user.toResponseObject();
     }
 
+    async updatePassword(data: UpdatePasswordDTO, userId: string) {
+        const { oldPassword, newPassword } = data;
+        const user = await this.userRepo.findOne(userId);
+
+        if (!user || !(await user.comparePassword(oldPassword))) {
+            throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST);
+        }
+
+        user.password = await bcrypct.hash(newPassword, 10);
+        await this.userRepo.save(user);
+
+        return 'ok';
+    }
+
     async updateSponsor(data: SponsorUpdateDTO) {
         const { userId, sponsorId } = data;
         const sponsor = await this.userRepo.findOne(sponsorId);
@@ -127,7 +142,7 @@ export class AccountsService {
         await getManager().transaction(async trx => {
             for (let user of users) {
                 user.balance = 0;
-                trx.save(user);
+                await trx.save(user);
             }
         });
         return 'ok';

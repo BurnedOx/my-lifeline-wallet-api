@@ -42,6 +42,14 @@ export class LoginDTO {
     password: string;
 }
 
+export class UpdatePasswordDTO {
+    @IsString()
+    oldPassword: string;
+
+    @IsString()
+    newPassword: string;
+}
+
 export class SponsorUpdateDTO {
     @IsString()
     userId: string;
