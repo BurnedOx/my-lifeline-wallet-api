@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Rank } from 'src/database/entity/rank.entity';
-import { Repository, EntityManager, Not, IsNull, getManager } from 'typeorm';
+import { Repository, Not, IsNull, getManager } from 'typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { generateId } from 'src/common/utils/generateId';
 import { Ranks } from 'src/common/costraints';
@@ -28,11 +28,12 @@ export class RankService {
                 for (let user of allUsers) {
                     user.totalSingleLeg += 1;
                     await trx.save(user);
-                    const direct = await this.getDirectMembersForRank(user);
+                    let direct = await this.getDirectMembersForRank(user);
                     const existingRanks = user.ranks;
                     const existingRankNames = existingRanks.map(r => r.rank);
                     const rank = this.getRank(user.totalSingleLeg, direct.length);
                     if (rank && !(existingRankNames.includes(rank.type))) {
+                        direct = direct.slice(0, rank.direct);
                         const newRank = this.rankRepo.create({
                             id: generateId(),
                             rank: rank.type,
@@ -52,15 +53,17 @@ export class RankService {
         return await this.userRepo.find({
             where: {
                 sponsoredBy: user,
-                generatedRank: IsNull()
+                generatedRank: IsNull(),
+                activatedAt: Not(IsNull()),
             },
-            relations: ['sponsoredBy', 'generatedRank']
+            relations: ['sponsoredBy', 'generatedRank'],
+            order: {activatedAt: 'ASC'}
         });
     }
 
     private getRank(singleLegCount: number, directCount: number) {
         for (let i = 0; i < Ranks.length; i++) {
-            if (directCount === Ranks[i].direct
+            if (directCount >= Ranks[i].direct
                 && singleLegCount >= Ranks[i].company
                 && (i === Ranks.length - 1 || singleLegCount < Ranks[i + 1]?.company)) {
                 return { ...Ranks[i] };
