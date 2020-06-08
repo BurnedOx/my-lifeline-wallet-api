@@ -5,6 +5,7 @@ import { Repository, Not, IsNull, getManager } from 'typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { generateId } from 'src/common/utils/generateId';
 import { Ranks } from 'src/common/costraints';
+import { RankDTO } from './rank.dto';
 
 @Injectable()
 export class RankService {
@@ -49,6 +50,33 @@ export class RankService {
         }
     }
 
+    async createRank(data: RankDTO) {
+        const { rank, ids } = data;
+        const rankObj = Ranks.find(r => r.type === rank);
+        const userIds = ids.split(',');
+
+        await getManager().transaction(async trx => {
+            for (let userId of userIds) {
+                const user = await this.userRepo.findOne(userId, {
+                    where: { activatedAt: Not(IsNull()) },
+                    relations: ['ranks']
+                });
+                const existingRankNames = user.ranks.map(r => r.rank);
+                const direct = (await this.getDirectMembersForRank(user)).slice(0, rankObj.direct);
+                if (user && !(existingRankNames.includes(rank))) {
+                    const newRank = await this.rankRepo.create({
+                        id: generateId(),
+                        owner: user,
+                        rank, direct
+                    });
+                    await trx.save(newRank);
+                }
+            }
+        });
+
+        return 'ok';
+    }
+
     private async getDirectMembersForRank(user: User) {
         return await this.userRepo.find({
             where: {
@@ -57,7 +85,7 @@ export class RankService {
                 activatedAt: Not(IsNull()),
             },
             relations: ['sponsoredBy', 'generatedRank'],
-            order: {activatedAt: 'ASC'}
+            order: { activatedAt: 'ASC' }
         });
     }
 
