@@ -41,7 +41,7 @@ export class RoiService {
         return rois.map(roi => roi.toResponseObject());
     }
 
-    @Cron('0 59 23 * * *')
+    @Cron('0 59 23 * * *', {timeZone: 'Asia/Kolkata'})
     async generateDailyROI() {
         if (!this.shouldGenerateROI) {
             Logger.log(`ROI generation postponded for ${new Date().toDateString()}`, 'ROI service');
