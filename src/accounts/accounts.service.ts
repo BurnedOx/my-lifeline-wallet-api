@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus, Logger, Inject } from '@nestjs/c
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { Repository, getManager } from 'typeorm';
-import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO, UpdatePasswordDTO, ProfileDTO } from './accounts.dto';
+import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO, UpdatePasswordDTO, ProfileDTO, BankDTO } from './accounts.dto';
 import { generateId } from '../common/utils/generateId'
 import { EPin } from 'src/database/entity/epin.entity';
 import { RankService } from 'src/rank/rank.service';
@@ -123,6 +123,15 @@ export class AccountsService {
         await this.userRepo.save(user);
 
         return 'ok';
+    }
+
+    async updateBankDetails(data: BankDTO, userId: string) {
+        const user = await this.userRepo.update(userId, { bankDetails: data });
+        if (user.affected > 0) {
+            return 'ok';
+        } else {
+            throw new HttpException('Update Failed', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     async updateSponsor(data: SponsorUpdateDTO) {

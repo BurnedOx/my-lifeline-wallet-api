@@ -2,7 +2,7 @@ export interface BankDetails {
     accountName: string;
     bankName: string;
     accountNumber: number;
-    isfc: number;
+    isfc: string;
     accountType: string;
 }
 
@@ -12,6 +12,7 @@ export interface UserRO {
     mobile: number;
     sponsoredBy: Pick<UserRO, 'id' | 'name'> | null;
     epinId: string | null;
+    bankDetails: BankDetails | null;
     panNumber: string | null;
     roll: 'user' | 'admin';
     status: 'active' | 'inactive';

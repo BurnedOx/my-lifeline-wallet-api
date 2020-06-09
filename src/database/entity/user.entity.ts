@@ -75,14 +75,14 @@ export class User extends Base {
     }
 
     toResponseObject(getToken: boolean = false): UserRO {
-        const { id, name, mobile, panNumber, roll, status, sponsoredBy, balance, ranks, activatedAt, updatedAt, createdAt } = this;
+        const { id, name, mobile, panNumber, bankDetails, roll, status, sponsoredBy, balance, ranks, activatedAt, updatedAt, createdAt } = this;
         ranks.sort((a, b) => {
             const aRank = Ranks.find(r => r.type === a.rank);
             const bRank = Ranks.find(r => r.type === b.rank);
             return (bRank.company - aRank.company);
         });
         const data: UserRO = {
-            id, name, mobile, panNumber, roll, status, balance, activatedAt, updatedAt, createdAt,
+            id, name, mobile, panNumber, roll, status, balance, bankDetails, activatedAt, updatedAt, createdAt,
             sponsoredBy: sponsoredBy ? { id: sponsoredBy.id, name: sponsoredBy.name } : null,
             epinId: this.epin?.id ?? null,
             rank: ranks ? (ranks[0]?.rank ?? null) : null

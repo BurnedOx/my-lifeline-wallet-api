@@ -1,4 +1,5 @@
 import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { BankDetails } from 'src/interfaces';
 
 export class RegistrationDTO {
     @IsString()
@@ -70,4 +71,21 @@ export class ProfileDTO {
     @IsString()
     @IsOptional()
     panNumber?: string;
+}
+
+export class BankDTO implements BankDetails {
+    @IsString()
+    accountName: string;
+
+    @IsString()
+    bankName: string;
+
+    @IsNumber()
+    accountNumber: number;
+
+    @IsString()
+    isfc: string;
+
+    @IsString()
+    accountType: string;
 }
