@@ -12,8 +12,7 @@ export interface UserRO {
     mobile: number;
     sponsoredBy: Pick<UserRO, 'id' | 'name'> | null;
     epinId: string | null;
-    bankDetails: BankDetails | null;
-    panNumber: number | null;
+    panNumber: string | null;
     roll: 'user' | 'admin';
     status: 'active' | 'inactive';
     activatedAt: Date | null;

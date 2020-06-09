@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class RegistrationDTO {
     @IsString()
@@ -56,4 +56,18 @@ export class SponsorUpdateDTO {
 
     @IsString()
     sponsorId: string;
+}
+
+export class ProfileDTO {
+    @IsString()
+    @IsOptional()
+    name?: string;
+
+    @IsNumber()
+    @IsOptional()
+    mobile?: number;
+
+    @IsString()
+    @IsOptional()
+    panNumber?: string;
 }

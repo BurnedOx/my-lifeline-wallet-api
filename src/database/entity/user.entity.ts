@@ -7,6 +7,7 @@ import { EPin } from "./epin.entity";
 import { Income } from "./income.entity";
 import { ROI } from "./roi.entity";
 import { Rank } from "./rank.entity";
+import { Ranks } from "src/common/costraints";
 
 @Entity()
 export class User extends Base {
@@ -35,7 +36,7 @@ export class User extends Base {
     bankDetails: BankDetails | null;
 
     @Column({ nullable: true, default: null })
-    panNumber: number | null;
+    panNumber: string | null;
 
     @Column({ default: 0 })
     balance: number;
@@ -74,12 +75,17 @@ export class User extends Base {
     }
 
     toResponseObject(getToken: boolean = false): UserRO {
-        const { id, name, mobile, bankDetails, panNumber, roll, status, sponsoredBy, balance, ranks, activatedAt, updatedAt, createdAt } = this;
+        const { id, name, mobile, panNumber, roll, status, sponsoredBy, balance, ranks, activatedAt, updatedAt, createdAt } = this;
+        ranks.sort((a, b) => {
+            const aRank = Ranks.find(r => r.type === a.rank);
+            const bRank = Ranks.find(r => r.type === b.rank);
+            return (bRank.company - aRank.company);
+        });
         const data: UserRO = {
-            id, name, mobile, bankDetails, panNumber, roll, status, balance, activatedAt, updatedAt, createdAt,
+            id, name, mobile, panNumber, roll, status, balance, activatedAt, updatedAt, createdAt,
             sponsoredBy: sponsoredBy ? { id: sponsoredBy.id, name: sponsoredBy.name } : null,
             epinId: this.epin?.id ?? null,
-            rank: ranks ? (ranks[ranks.length - 1]?.rank ?? null) : null
+            rank: ranks ? (ranks[0]?.rank ?? null) : null
         };
         if (getToken) {
             data.token = this.token;
