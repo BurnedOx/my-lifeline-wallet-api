@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
 import { Base } from "./base.entity";
 import { User } from "./user.entity";
-import { WithdrawlRO } from "src/interfaces";
+import { WithdrawlRO, BankDetails } from "src/interfaces";
 
 @Entity()
 export class Withdrawl extends Base {
@@ -16,6 +16,9 @@ export class Withdrawl extends Base {
 
     @Column({ default: 'By NEFT' })
     paymentType: string;
+
+    @Column({ type: 'jsonb', nullable: true, default: null })
+    bankDetails: BankDetails | null;
 
     @Column({ default: 'unpaid' })
     status: 'paid' | 'unpaid' | 'cancelled';
@@ -32,12 +35,10 @@ export class Withdrawl extends Base {
             processedAt,
             paymentType,
             status,
-            owner,
+            bankDetails,
             createdAt,
             updatedAt
         } = this;
-
-        const { bankDetails } = owner;
 
         return { id, withdrawAmount, netAmount, processedAt, paymentType, status, createdAt, updatedAt, ...bankDetails };
     }

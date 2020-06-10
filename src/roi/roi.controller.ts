@@ -26,7 +26,7 @@ export class RoiController {
     @Put('generate')
     @UseGuards(new AuthGuard())
     @UsePipes(new ValidationPipe())
-    toggleState(@Body() state: boolean) {
+    toggleState(@Body('state') state: boolean) {
         this.roiService.roiGenerationState = state;
         return 'ok';
     }

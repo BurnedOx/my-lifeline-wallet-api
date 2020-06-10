@@ -39,7 +39,7 @@ export class AccountsController {
     @Put('activate')
     @UseGuards(new AuthGuard())
     @UsePipes(new ValidationPipe())
-    activateAccount(@Body() id: string, @CustomHeader() headers: HeaderDTO) {
+    activateAccount(@Body('id') id: string, @CustomHeader() headers: HeaderDTO) {
         return this.accountsService.activateAccount(id, headers.userId);
     }
 
@@ -72,7 +72,7 @@ export class AccountsController {
     }
 
     @Put('wallet-reset')
-    @UseGuards()
+    @UseGuards(new AuthGuard())
     resetWallets() {
         return this.accountsService.resetBalance();
     }
