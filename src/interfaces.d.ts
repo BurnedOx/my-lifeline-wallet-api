@@ -64,6 +64,17 @@ export interface RoiRO {
     createdAt: Date;
 }
 
+export interface WithdrawlRO extends BankDetails {
+    id: string;
+    withdrawAmount: number;
+    netAmount: number;
+    processedAt: Date | null;
+    paymentType: string;
+    status: 'paid' | 'unpaid' | 'cancelled';
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export type RankName = 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' | 'EMERALD' | 'RUBY' | 'PEARL' | 'DIAMOND' | 'WHITE DIAMOND' | 'BLACK DIAMOND' | 'BLUE DIAMOND' | 'AMBASSADOR';
 
 export interface RankData {
