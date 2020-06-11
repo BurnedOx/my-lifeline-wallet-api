@@ -70,7 +70,7 @@ export class User extends Base {
     @JoinColumn()
     generatedRank: Rank | null;
 
-    @OneToMany(() => Withdrawl, withdrawl => withdrawl.owner, { cascade: true })
+    @OneToMany(() => Withdrawl, withdrawl => withdrawl.owner)
     withdrawls: Withdrawl[];
 
     @BeforeInsert()
