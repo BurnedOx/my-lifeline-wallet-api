@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { Repository, getManager } from 'typeorm';
 import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO, UpdatePasswordDTO, ProfileDTO, BankDTO } from './accounts.dto';
-import { generateId } from '../common/utils/generateId'
 import { EPin } from 'src/database/entity/epin.entity';
 import { RankService } from 'src/rank/rank.service';
 import { IncomeService } from 'src/income/income.service';
@@ -48,7 +47,6 @@ export class AccountsService {
             throw new HttpException('Inactive sponsor', HttpStatus.BAD_REQUEST);
         }
         const user = await this.userRepo.create({
-            id: generateId(),
             roll: 'user',
             name, password, mobile, sponsoredBy
         });
@@ -60,7 +58,6 @@ export class AccountsService {
     async registerAdmin(data: AdminRegistrationDTO) {
         const { name, mobile, password } = data;
         const user = await this.userRepo.create({
-            id: generateId(),
             roll: 'admin',
             sponsoredBy: null,
             status: 'active',

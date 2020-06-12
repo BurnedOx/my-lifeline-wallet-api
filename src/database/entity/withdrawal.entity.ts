@@ -1,10 +1,10 @@
 import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
 import { Base } from "./base.entity";
 import { User } from "./user.entity";
-import { WithdrawlRO, BankDetails } from "src/interfaces";
+import { WithdrawalRO, BankDetails } from "src/interfaces";
 
 @Entity()
-export class Withdrawl extends Base {
+export class Withdrawal extends Base {
     @Column()
     withdrawAmount: number;
 
@@ -23,11 +23,11 @@ export class Withdrawl extends Base {
     @Column({ default: 'unpaid' })
     status: 'paid' | 'unpaid' | 'cancelled';
 
-    @ManyToOne(() => User, user => user.withdrawls, { onDelete: 'CASCADE' })
+    @ManyToOne(() => User, user => user.withdrawals, { onDelete: 'CASCADE' })
     @JoinColumn()
     owner: User;
 
-    toResponseObject(): WithdrawlRO {
+    toResponseObject(): WithdrawalRO {
         const {
             id,
             withdrawAmount,

@@ -6,7 +6,6 @@ import { User } from 'src/database/entity/user.entity';
 import { Cron } from '@nestjs/schedule';
 import { Rank } from 'src/database/entity/rank.entity';
 import { Ranks } from 'src/common/costraints';
-import { generateId } from 'src/common/utils/generateId';
 
 @Injectable()
 export class RoiService {
@@ -78,7 +77,6 @@ export class RoiService {
             await trx.save(owner);
 
             const newROI = this.roiRepo.create({
-                id: generateId(),
                 credit: rankObj.income,
                 currentBalance: owner.balance,
                 owner, rank

@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EPin } from 'src/database/entity/epin.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/database/entity/user.entity';
-import { generateId } from 'src/common/utils/generateId';
 
 @Injectable()
 export class EpinService {
@@ -39,7 +38,7 @@ export class EpinService {
     }
 
     async generate() {
-        const epin = await this.epinRepo.create({ id: generateId() });
+        const epin = await this.epinRepo.create();
         await this.epinRepo.save(epin);
         return epin.toResponseObject();
     }

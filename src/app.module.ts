@@ -10,13 +10,13 @@ import { MembersModule } from './members/members.module';
 import { IncomeModule } from './income/income.module';
 import { RoiModule } from './roi/roi.module';
 import { RankModule } from './rank/rank.module';
-import { WithdrawlModule } from './withdrawl/withdrawl.module';
+import { WithdrawalModule } from './withdrawal/withdrawal.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(),
     ScheduleModule.forRoot(),
-    AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, RoiModule, RankModule, WithdrawlModule
+    AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, RoiModule, RankModule, WithdrawalModule
   ],
   controllers: [AppController],
   providers: [AppService],

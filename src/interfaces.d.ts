@@ -64,7 +64,7 @@ export interface RoiRO {
     createdAt: Date;
 }
 
-export interface WithdrawlRO extends BankDetails {
+export interface WithdrawalRO extends BankDetails {
     id: string;
     withdrawAmount: number;
     netAmount: number;

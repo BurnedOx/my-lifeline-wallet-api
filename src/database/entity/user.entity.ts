@@ -8,7 +8,7 @@ import { Income } from "./income.entity";
 import { ROI } from "./roi.entity";
 import { Rank } from "./rank.entity";
 import { Ranks } from "src/common/costraints";
-import { Withdrawl } from "./withdrawl.entity";
+import { Withdrawal } from "./withdrawal.entity";
 
 @Entity()
 export class User extends Base {
@@ -70,8 +70,8 @@ export class User extends Base {
     @JoinColumn()
     generatedRank: Rank | null;
 
-    @OneToMany(() => Withdrawl, withdrawl => withdrawl.owner, { cascade: true })
-    withdrawls: Withdrawl[];
+    @OneToMany(() => Withdrawal, withdrawal => withdrawal.owner)
+    withdrawals: Withdrawal[];
 
     @BeforeInsert()
     async hashPassword() {

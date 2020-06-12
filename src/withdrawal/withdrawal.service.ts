@@ -1,19 +1,18 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
-import { Repository, Not, MoreThan, Between, getManager } from 'typeorm';
-import { Withdrawl } from 'src/database/entity/withdrawl.entity';
-import { WithdrawlDTO } from './withdrawl.dto';
-import { generateId } from 'src/common/utils/generateId';
+import { Repository, Not, Between, getManager } from 'typeorm';
+import { Withdrawal } from 'src/database/entity/withdrawal.entity';
+import { WithdrawalDTO } from './withdrawal.dto';
 
 @Injectable()
-export class WithdrawlService {
+export class WithdrawalService {
     constructor(
         @InjectRepository(User)
         private readonly userRepo: Repository<User>,
 
-        @InjectRepository(Withdrawl)
-        private readonly withdrawlRepo: Repository<Withdrawl>,
+        @InjectRepository(Withdrawal)
+        private readonly withdrawlRepo: Repository<Withdrawal>,
     ) { }
 
     async get(userId: string) {
@@ -31,7 +30,7 @@ export class WithdrawlService {
         }));
     }
 
-    async create(userId: string, data: WithdrawlDTO) {
+    async create(userId: string, data: WithdrawalDTO) {
         const owner = await this.getUser(userId);
         const { withdrawAmount } = data;
         const [morning, noon] = this.getTimes();
@@ -55,7 +54,6 @@ export class WithdrawlService {
 
         return getManager().transaction(async trx => {
             const newWithdrawl = await this.withdrawlRepo.create({
-                id: generateId(),
                 netAmount: owner.balance - withdrawAmount,
                 withdrawAmount, owner
             });

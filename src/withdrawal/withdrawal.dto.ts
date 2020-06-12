@@ -1,6 +1,6 @@
 import { IsNumber, Min, Max } from "class-validator";
 
-export class WithdrawlDTO {
+export class WithdrawalDTO {
     @IsNumber()
     @Min(500)
     @Max(500)

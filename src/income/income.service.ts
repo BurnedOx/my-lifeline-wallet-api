@@ -4,7 +4,6 @@ import { Income } from 'src/database/entity/income.entity';
 import { Repository, EntityManager } from 'typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { levelIncomeAmount } from 'src/common/costraints';
-import { generateId } from 'src/common/utils/generateId';
 
 @Injectable()
 export class IncomeService {
@@ -45,7 +44,6 @@ export class IncomeService {
             sponsor.balance = sponsor.balance + levelIncomeAmount[level];
             await trx.save(sponsor);
             const income = this.incomeRepo.create({
-                id: generateId(),
                 amount: levelIncomeAmount[level],
                 owner: sponsor,
                 level, from

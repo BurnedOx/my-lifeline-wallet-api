@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Rank } from 'src/database/entity/rank.entity';
 import { Repository, Not, IsNull, getManager } from 'typeorm';
 import { User } from 'src/database/entity/user.entity';
-import { generateId } from 'src/common/utils/generateId';
 import { Ranks } from 'src/common/costraints';
 import { RankDTO } from './rank.dto';
 
@@ -36,7 +35,6 @@ export class RankService {
                     if (rank && !(existingRankNames.includes(rank.type))) {
                         direct = direct.slice(0, rank.direct);
                         const newRank = this.rankRepo.create({
-                            id: generateId(),
                             rank: rank.type,
                             owner: user, direct
                         });
@@ -65,7 +63,6 @@ export class RankService {
                 const direct = (await this.getDirectMembersForRank(user)).slice(0, rankObj.direct);
                 if (user && !(existingRankNames.includes(rank))) {
                     const newRank = await this.rankRepo.create({
-                        id: generateId(),
                         owner: user,
                         rank, direct
                     });

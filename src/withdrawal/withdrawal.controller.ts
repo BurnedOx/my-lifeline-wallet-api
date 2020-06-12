@@ -1,14 +1,14 @@
 import { Controller, Get, UseGuards, UsePipes, Body, Query, Post, Put, Param } from '@nestjs/common';
-import { WithdrawlService } from './withdrawl.service';
+import { WithdrawalService } from './withdrawal.service';
 import { ValidationPipe } from 'src/common/validation.pipe';
 import { CustomHeader } from 'src/common/decorators/common-header-decorator';
 import { HeaderDTO } from 'src/common/dto/base-header.dto';
 import { AuthGuard } from 'src/common/auth.guard';
-import { WithdrawlDTO } from './withdrawl.dto';
+import { WithdrawalDTO } from './withdrawal.dto';
 
-@Controller('withdrawl')
-export class WithdrawlController {
-    constructor(private readonly withdrawlService: WithdrawlService) {}
+@Controller('withdrawal')
+export class WithdrawalController {
+    constructor(private readonly withdrawlService: WithdrawalService) {}
 
     @Get()
     @UseGuards(new AuthGuard())
@@ -27,7 +27,7 @@ export class WithdrawlController {
     @Post()
     @UseGuards(new AuthGuard())
     @UsePipes(new ValidationPipe())
-    create(@CustomHeader() headers: HeaderDTO, @Body() data: WithdrawlDTO) {
+    create(@CustomHeader() headers: HeaderDTO, @Body() data: WithdrawalDTO) {
         return this.withdrawlService.create(headers.userId, data);
     }
 
