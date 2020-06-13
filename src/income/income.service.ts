@@ -46,6 +46,7 @@ export class IncomeService {
             const income = this.incomeRepo.create({
                 amount: levelIncomeAmount[level],
                 owner: sponsor,
+                currentBalance: sponsor.balance,
                 level, from
             });
             await trx.save(income);

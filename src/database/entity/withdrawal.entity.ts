@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
 import { Base } from "./base.entity";
 import { User } from "./user.entity";
-import { WithdrawalRO, BankDetails } from "src/interfaces";
+import { WithdrawalRO, BankDetails, TransactionRO } from "src/interfaces";
 
 @Entity()
 export class Withdrawal extends Base {
@@ -26,6 +26,14 @@ export class Withdrawal extends Base {
     @ManyToOne(() => User, user => user.withdrawals, { onDelete: 'CASCADE' })
     @JoinColumn()
     owner: User;
+
+    get trxObject(): TransactionRO {
+        const { withdrawAmount: debit, netAmount: currentBalance, createdAt } = this;
+        return {
+            remarks: 'Withdrawal',
+            debit, currentBalance, createdAt,
+        }
+    }
 
     toResponseObject(): WithdrawalRO {
         const {

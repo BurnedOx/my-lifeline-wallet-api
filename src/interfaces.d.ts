@@ -57,12 +57,13 @@ export interface EpinRO {
 }
 
 export interface IncomeRO {
-    id: string,
-    ownerId: string,
-    from: Pick<UserRO, 'id' | 'name'>,
-    level: number,
-    amount: number,
-    createdAt: Date
+    id: string;
+    ownerId: string;
+    from: Pick<UserRO, 'id' | 'name'>;
+    level: number;
+    amount: number;
+    currentBalance: number;
+    createdAt: Date;
 }
 
 export interface RoiRO {
@@ -93,4 +94,12 @@ export interface RankData {
     company: number;
     income: number;
     validity: number;
+}
+
+export interface TransactionRO {
+    credit?: number;
+    debit?: number;
+    currentBalance: number;
+    remarks: string;
+    createdAt: Date;
 }

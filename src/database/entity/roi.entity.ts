@@ -2,7 +2,7 @@ import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
 import { Base } from "./base.entity";
 import { User } from "./user.entity";
 import { Rank } from "./rank.entity";
-import { RoiRO } from "src/interfaces";
+import { RoiRO, TransactionRO } from "src/interfaces";
 
 @Entity()
 export class ROI extends Base {
@@ -25,6 +25,14 @@ export class ROI extends Base {
         return {
             id, credit, currentBalance, updatedAt, createdAt,
             rank: rank.rank
+        };
+    }
+
+    get trxObject(): TransactionRO {
+        const { credit, currentBalance, createdAt, rank } = this;
+        return {
+            remarks: `${rank.rank} ROI Income`,
+            credit, currentBalance, createdAt,
         };
     }
 }

@@ -11,12 +11,13 @@ import { IncomeModule } from './income/income.module';
 import { RoiModule } from './roi/roi.module';
 import { RankModule } from './rank/rank.module';
 import { WithdrawalModule } from './withdrawal/withdrawal.module';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(),
     ScheduleModule.forRoot(),
-    AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, RoiModule, RankModule, WithdrawalModule
+    AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, RoiModule, RankModule, WithdrawalModule, TransactionModule
   ],
   controllers: [AppController],
   providers: [AppService],
