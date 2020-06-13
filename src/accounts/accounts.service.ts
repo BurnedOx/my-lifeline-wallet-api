@@ -60,9 +60,15 @@ export class AccountsService {
     }
 
     async getDetails(userId: string): Promise<UserDetailsRO> {
-        const user = await this.userRepo.findOne(userId, {
-            relations: ['sponsored', 'ranks', 'incomes', 'singleLegIncomes', 'withdrawals']
-        });
+        const user = await this.userRepo.createQueryBuilder("user")
+            .leftJoinAndSelect('user.sponsored', 'sponsored')
+            .leftJoinAndSelect('user.ranks', 'ranks')
+            .leftJoinAndSelect('user.incomes', 'incomes')
+            .leftJoinAndSelect('user.singleLegIncomes', 'singleLegIncomes')
+            .leftJoinAndSelect('user.withdrawals', 'withdrawals')
+            .where('user.id = :userId', { userId })
+            .getOne();
+
         if (!user) {
             throw new HttpException('user not found', HttpStatus.NOT_FOUND);
         }
