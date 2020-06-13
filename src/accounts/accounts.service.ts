@@ -60,27 +60,32 @@ export class AccountsService {
     }
 
     async getDetails(userId: string): Promise<UserDetailsRO> {
-        const user = await this.userRepo.createQueryBuilder("user")
+        const user1 = await this.userRepo.createQueryBuilder("user")
             .leftJoinAndSelect('user.sponsored', 'sponsored')
             .leftJoinAndSelect('user.ranks', 'ranks')
+            .where('user.id = :userId', { userId })
+            .getOne();
+
+        if (!user1) {
+            throw new HttpException('user not found', HttpStatus.NOT_FOUND);
+        }
+
+        const user2 = await this.userRepo.createQueryBuilder("user")
             .leftJoinAndSelect('user.incomes', 'incomes')
             .leftJoinAndSelect('user.singleLegIncomes', 'singleLegIncomes')
             .leftJoinAndSelect('user.withdrawals', 'withdrawals')
             .where('user.id = :userId', { userId })
             .getOne();
 
-        if (!user) {
-            throw new HttpException('user not found', HttpStatus.NOT_FOUND);
-        }
         const {
             balance: wallet,
             ranks,
             sponsored,
-            totalSingleLeg: singleLeg,
-            incomes,
-            singleLegIncomes,
-            withdrawals
-        } = user;
+            totalSingleLeg: singleLeg
+        } = user1;
+
+        const { incomes, singleLegIncomes, withdrawals } = user2;
+
         ranks?.sort((a, b) => {
             const aRank = Ranks.find(r => r.type === a.rank);
             const bRank = Ranks.find(r => r.type === b.rank);
@@ -91,7 +96,7 @@ export class AccountsService {
         const withdrawAmounts = withdrawals.filter(w => w.status === 'paid').map(w => w.withdrawAmount);
         const rank = ranks ? (ranks[0]?.rank ?? null) : null
         const direct = sponsored.length;
-        const downline = (await User.getDownline(user)).length;
+        const downline = (await User.getDownline(user1)).length;
         const levelIncome = incomeAmounts.length !== 0 ? incomeAmounts.reduce((a, b) => a + b) : 0;
         const ROI = roiAmounts.length !== 0 ? roiAmounts.reduce((a, b) => a + b) : 0;
         const totalWithdrawal = withdrawAmounts.length !== 0 ? withdrawAmounts.reduce((a, b) => a + b) : 0;
