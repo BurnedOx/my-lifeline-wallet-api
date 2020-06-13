@@ -17,11 +17,21 @@ export interface UserRO {
     roll: 'user' | 'admin';
     status: 'active' | 'inactive';
     activatedAt: Date | null;
-    rank: RankName | null;
-    balance: number;
     updatedAt: Date;
     createdAt: Date;
     token?: string;
+}
+
+export interface UserDetailsRO {
+    wallet: number;
+    rank: RankName | null;
+    direct: number;
+    downline: number;
+    singleLeg: number;
+    levelIncome: number;
+    ROI: number;
+    totalWithdrawal: number;
+    totalIncome: number;
 }
 
 export interface MemberRO {
@@ -75,7 +85,7 @@ export interface WithdrawalRO extends BankDetails {
     updatedAt: Date;
 }
 
-export type RankName = 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' | 'EMERALD' | 'RUBY' | 'PEARL' | 'DIAMOND' | 'WHITE DIAMOND' | 'BLACK DIAMOND' | 'BLUE DIAMOND' | 'AMBASSADOR';
+export type RankName = 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' | 'EMERALD' | 'RUBY' | 'PEARL' | 'DIAMOND' | 'WHITE DIAMOND' | 'BLACK DIAMOND' | 'BLUE DIAMOND' | 'CORPORATE' | 'AMBASSADOR' | 'EMPOWER' | 'CROWN';
 
 export interface RankData {
     type: RankName;

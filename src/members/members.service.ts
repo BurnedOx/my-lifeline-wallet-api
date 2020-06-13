@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { Repository, Not, IsNull, getManager } from 'typeorm';
 import { MemberRO } from 'src/interfaces';
+import { async } from 'rxjs/internal/scheduler/async';
 
 @Injectable()
 export class MembersService {
@@ -35,7 +36,8 @@ export class MembersService {
 
     async downlineMembers(userId: string) {
         const user = await this.checkUser(userId);
-        return await this.getDownlineList(user);
+        return (await User.getDownline(user))
+            .map(({ member, level }) => member.toMemberObject(level));
     }
 
     async singleLegMembers(userId: string) {
@@ -44,26 +46,10 @@ export class MembersService {
         return members.map(m => m.toSingleLegMemberObject());
     }
 
-    private async getDownlineList(root: User, downline: MemberRO[] = [], level: number = 1) {
-        const members = await this.userRepo.find({
-            where: { sponsoredBy: root },
-            order: { createdAt: 'DESC' }
-        });
-
-        for (let member of members) {
-            downline.push(member.toMemberObject(level));
-            await this.getDownlineList(member, downline, level + 1);
-        }
-        return downline;
-    }
-
     private async checkUser(userId: string) {
-        const user = await this.userRepo.findOne(userId);
+        const user = await this.userRepo.findOne(userId, { relations: ['sponsored', 'sponsoredBy'] });
         if (!user) {
             throw new HttpException('Invalid userid', HttpStatus.NOT_FOUND);
-        }
-        if (user.status !== 'active') {
-            throw new HttpException('Inactive User', HttpStatus.BAD_REQUEST);
         }
         return user;
     }

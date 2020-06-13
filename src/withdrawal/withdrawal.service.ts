@@ -32,6 +32,7 @@ export class WithdrawalService {
 
     async create(userId: string, data: WithdrawalDTO) {
         const owner = await this.getUser(userId);
+        const { bankDetails } = owner;
         const { withdrawAmount } = data;
         const [morning, noon] = this.getTimes();
 
@@ -55,7 +56,7 @@ export class WithdrawalService {
         return getManager().transaction(async trx => {
             const newWithdrawl = await this.withdrawlRepo.create({
                 netAmount: owner.balance - withdrawAmount,
-                withdrawAmount, owner
+                withdrawAmount, owner, bankDetails
             });
             await trx.save(newWithdrawl);
             owner.balance = newWithdrawl.netAmount;
@@ -93,12 +94,12 @@ export class WithdrawalService {
 
     private getTimes() {
         const morning = new Date();
-        morning.setHours(6);
+        morning.setHours(15);
         morning.setMinutes(0);
         morning.setSeconds(0);
         morning.setMilliseconds(0);
         const noon = new Date(morning);
-        noon.setHours(12);
+        noon.setHours(17);
 
         return [morning, noon];
     }

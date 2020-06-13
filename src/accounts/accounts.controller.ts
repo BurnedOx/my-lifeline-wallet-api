@@ -36,6 +36,12 @@ export class AccountsController {
         return this.accountsService.login(data);
     }
 
+    @Get('details')
+    @UseGuards(new AuthGuard())
+    getDetails(@CustomHeader() headers: HeaderDTO) {
+        return this.accountsService.getDetails(headers.userId);
+    }
+
     @Put('activate')
     @UseGuards(new AuthGuard())
     @UsePipes(new ValidationPipe())

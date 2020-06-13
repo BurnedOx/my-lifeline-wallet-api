@@ -9,5 +9,6 @@ import { EPin } from 'src/database/entity/epin.entity';
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [MembersController],
   providers: [MembersService],
+  exports: [MembersService]
 })
 export class MembersModule {}

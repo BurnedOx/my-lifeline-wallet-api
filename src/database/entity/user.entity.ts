@@ -9,6 +9,7 @@ import { ROI } from "./roi.entity";
 import { Rank } from "./rank.entity";
 import { Ranks } from "src/common/costraints";
 import { Withdrawal } from "./withdrawal.entity";
+import { Expose } from "class-transformer";
 
 @Entity()
 export class User extends Base {
@@ -78,18 +79,29 @@ export class User extends Base {
         this.password = await bcrypct.hash(this.password, 10);
     }
 
-    toResponseObject(getToken: boolean = false): UserRO {
-        const { id, name, mobile, panNumber, bankDetails, roll, status, sponsoredBy, balance, ranks, activatedAt, updatedAt, createdAt } = this;
-        ranks?.sort((a, b) => {
-            const aRank = Ranks.find(r => r.type === a.rank);
-            const bRank = Ranks.find(r => r.type === b.rank);
-            return (bRank.company - aRank.company);
+    public static async getDownline(
+        root: User,
+        downline: { member: User; level: number }[] = [],
+        level: number = 1
+    ) {
+        const members = await this.find({
+            where: { sponsoredBy: root },
+            order: { createdAt: 'DESC' }
         });
+
+        for (let member of members) {
+            downline.push({ member, level });
+            await this.getDownline(member, downline, level + 1);
+        }
+        return downline;
+    }
+
+    toResponseObject(getToken: boolean = false): UserRO {
+        const { id, name, mobile, panNumber, bankDetails, roll, status, sponsoredBy, activatedAt, updatedAt, createdAt } = this;
         const data: UserRO = {
-            id, name, mobile, panNumber, roll, status, balance, bankDetails, activatedAt, updatedAt, createdAt,
+            id, name, mobile, panNumber, roll, status, bankDetails, activatedAt, updatedAt, createdAt,
             sponsoredBy: sponsoredBy ? { id: sponsoredBy.id, name: sponsoredBy.name } : null,
             epinId: this.epin?.id ?? null,
-            rank: ranks ? (ranks[0]?.rank ?? null) : null
         };
         if (getToken) {
             data.token = this.token;

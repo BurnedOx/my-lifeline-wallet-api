@@ -7,6 +7,10 @@ import { EPin } from 'src/database/entity/epin.entity';
 import { RankService } from 'src/rank/rank.service';
 import { IncomeService } from 'src/income/income.service';
 import * as bcrypct from 'bcryptjs';
+import { MembersService } from 'src/members/members.service';
+import { RoiService } from 'src/roi/roi.service';
+import { UserDetailsRO } from 'src/interfaces';
+import { Ranks } from 'src/common/costraints';
 
 @Injectable()
 export class AccountsService {
@@ -53,6 +57,43 @@ export class AccountsService {
         await this.userRepo.save(user);
 
         return user.toResponseObject(true);
+    }
+
+    async getDetails(userId: string): Promise<UserDetailsRO> {
+        const user = await this.userRepo.findOne(userId, {
+            relations: ['sponsored', 'ranks', 'incomes', 'singleLegIncomes', 'withdrawals']
+        });
+        if (!user) {
+            throw new HttpException('user not found', HttpStatus.NOT_FOUND);
+        }
+        const {
+            balance: wallet,
+            ranks,
+            sponsored,
+            totalSingleLeg: singleLeg,
+            incomes,
+            singleLegIncomes,
+            withdrawals
+        } = user;
+        ranks?.sort((a, b) => {
+            const aRank = Ranks.find(r => r.type === a.rank);
+            const bRank = Ranks.find(r => r.type === b.rank);
+            return (bRank.company - aRank.company);
+        });
+        const incomeAmounts = incomes.map(i => i.amount);
+        const roiAmounts = singleLegIncomes.map(s => s.credit);
+        const withdrawAmounts = withdrawals.filter(w => w.status === 'paid').map(w => w.withdrawAmount);
+        const rank = ranks ? (ranks[0]?.rank ?? null) : null
+        const direct = sponsored.length;
+        const downline = (await User.getDownline(user)).length;
+        const levelIncome = incomeAmounts.length !== 0 ? incomeAmounts.reduce((a, b) => a + b) : 0;
+        const ROI = roiAmounts.length !== 0 ? roiAmounts.reduce((a, b) => a + b) : 0;
+        const totalWithdrawal = withdrawAmounts.length !== 0 ? withdrawAmounts.reduce((a, b) => a + b) : 0;
+        const totalIncome = levelIncome + ROI;
+
+        return {
+            wallet, rank, direct, downline, singleLeg, levelIncome, ROI, totalWithdrawal, totalIncome
+        };
     }
 
     async registerAdmin(data: AdminRegistrationDTO) {
