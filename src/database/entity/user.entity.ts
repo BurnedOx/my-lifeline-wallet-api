@@ -7,9 +7,7 @@ import { EPin } from "./epin.entity";
 import { Income } from "./income.entity";
 import { ROI } from "./roi.entity";
 import { Rank } from "./rank.entity";
-import { Ranks } from "src/common/costraints";
 import { Withdrawal } from "./withdrawal.entity";
-import { Expose } from "class-transformer";
 
 @Entity()
 export class User extends Base {
@@ -46,7 +44,7 @@ export class User extends Base {
     @OneToMany(type => User, user => user.sponsoredBy)
     sponsored: User[];
 
-    @ManyToOne(type => User, user => user.sponsored, { nullable: true })
+    @ManyToOne(type => User, user => user.sponsored, { nullable: true, onDelete: 'CASCADE' })
     @JoinColumn()
     sponsoredBy: User | null;
 
@@ -78,6 +76,9 @@ export class User extends Base {
     async hashPassword() {
         this.password = await bcrypct.hash(this.password, 10);
     }
+
+    /* Methods to render response objects
+    And Queries */
 
     public static async getDownline(
         root: User,

@@ -14,11 +14,11 @@ export class Income extends Base {
     @Column({ default: 0 })
     currentBalance: number;
 
-    @ManyToOne(() => User, user => user.incomes)
+    @ManyToOne(() => User, user => user.incomes, { onDelete: 'CASCADE' })
     @JoinColumn()
     owner: User;
 
-    @ManyToOne(() => User, user => user.generatedIncomes)
+    @ManyToOne(() => User, user => user.generatedIncomes, { onDelete: 'CASCADE' })
     @JoinColumn()
     from: User;
 

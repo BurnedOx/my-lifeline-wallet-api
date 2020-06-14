@@ -214,4 +214,9 @@ export class AccountsService {
         });
         return 'ok';
     }
+
+    async deleteUser(id: string) {
+        await this.userRepo.delete(id);
+        return 'ok';
+    }
 }

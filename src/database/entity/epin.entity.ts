@@ -5,7 +5,7 @@ import { EpinRO } from "src/interfaces";
 
 @Entity()
 export class EPin extends Base {
-    @OneToOne(type => User, user => user.epin, { nullable: true })
+    @OneToOne(type => User, user => user.epin, { nullable: true, onDelete: 'SET NULL' })
     owner: User | null;
 
     toResponseObject(): EpinRO {

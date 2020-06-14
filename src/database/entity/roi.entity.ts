@@ -12,11 +12,11 @@ export class ROI extends Base {
     @Column()
     currentBalance: number;
 
-    @ManyToOne(() => User, user => user.singleLegIncomes)
+    @ManyToOne(() => User, user => user.singleLegIncomes, { onDelete: 'CASCADE' })
     @JoinColumn()
     owner: User;
 
-    @ManyToOne(() => Rank, rank => rank.incomes)
+    @ManyToOne(() => Rank, rank => rank.incomes, { onDelete: 'CASCADE' })
     @JoinColumn()
     rank: Rank;
 
