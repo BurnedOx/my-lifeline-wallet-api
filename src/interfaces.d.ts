@@ -12,6 +12,7 @@ export interface UserRO {
     mobile: number;
     sponsoredBy: Pick<UserRO, 'id' | 'name'> | null;
     epinId: string | null;
+    wallet: number;
     bankDetails: BankDetails | null;
     panNumber: string | null;
     roll: 'user' | 'admin';
@@ -29,7 +30,7 @@ export interface UserDetailsRO {
     downline: number;
     singleLeg: number;
     levelIncome: number;
-    ROI: number;
+    singleLegIncome: number;
     totalWithdrawal: number;
     totalIncome: number;
 }
@@ -66,15 +67,6 @@ export interface IncomeRO {
     createdAt: Date;
 }
 
-export interface RoiRO {
-    id: string;
-    credit: number;
-    currentBalance: number;
-    rank: RankName;
-    updatedAt: Date;
-    createdAt: Date;
-}
-
 export interface WithdrawalRO extends BankDetails {
     id: string;
     withdrawAmount: number;
@@ -86,14 +78,13 @@ export interface WithdrawalRO extends BankDetails {
     updatedAt: Date;
 }
 
-export type RankName = 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' | 'EMERALD' | 'RUBY' | 'PEARL' | 'DIAMOND' | 'WHITE DIAMOND' | 'BLACK DIAMOND' | 'BLUE DIAMOND' | 'CORPORATE' | 'AMBASSADOR' | 'EMPOWER' | 'CROWN';
+export type RankName = 'RANK1' | 'RANK2' | 'RANK3' | 'RANK4' | 'RANK5' | 'RANK6' | 'RANK7' | 'RANK8' | 'RANK9' | 'RANK10';
 
 export interface RankData {
     type: RankName;
     direct: number;
     company: number;
     income: number;
-    validity: number;
 }
 
 export interface TransactionRO {

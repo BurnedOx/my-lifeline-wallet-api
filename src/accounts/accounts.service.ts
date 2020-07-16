@@ -7,8 +7,6 @@ import { EPin } from 'src/database/entity/epin.entity';
 import { RankService } from 'src/rank/rank.service';
 import { IncomeService } from 'src/income/income.service';
 import * as bcrypct from 'bcryptjs';
-import { MembersService } from 'src/members/members.service';
-import { RoiService } from 'src/roi/roi.service';
 import { UserDetailsRO } from 'src/interfaces';
 import { Ranks } from 'src/common/costraints';
 
@@ -72,7 +70,6 @@ export class AccountsService {
 
         const user2 = await this.userRepo.createQueryBuilder("user")
             .leftJoinAndSelect('user.incomes', 'incomes')
-            .leftJoinAndSelect('user.singleLegIncomes', 'singleLegIncomes')
             .leftJoinAndSelect('user.withdrawals', 'withdrawals')
             .where('user.id = :userId', { userId })
             .getOne();
@@ -84,7 +81,7 @@ export class AccountsService {
             totalSingleLeg: singleLeg
         } = user1;
 
-        const { incomes, singleLegIncomes, withdrawals } = user2;
+        const { incomes, withdrawals } = user2;
 
         ranks?.sort((a, b) => {
             const aRank = Ranks.find(r => r.type === a.rank);
@@ -92,18 +89,17 @@ export class AccountsService {
             return (bRank.company - aRank.company);
         });
         const incomeAmounts = incomes.map(i => i.amount);
-        const roiAmounts = singleLegIncomes.map(s => s.credit);
         const withdrawAmounts = withdrawals.filter(w => w.status === 'paid').map(w => w.withdrawAmount);
         const rank = ranks ? (ranks[0]?.rank ?? null) : null
         const direct = sponsored.length;
         const downline = (await User.getDownline(user1)).length;
         const levelIncome = incomeAmounts.length !== 0 ? incomeAmounts.reduce((a, b) => a + b) : 0;
-        const ROI = roiAmounts.length !== 0 ? roiAmounts.reduce((a, b) => a + b) : 0;
+        const singleLegIncome = ranks.length !== 0 ? ranks.map(r => r.income).reduce((a, b) => a + b) : 0;
         const totalWithdrawal = withdrawAmounts.length !== 0 ? withdrawAmounts.reduce((a, b) => a + b) : 0;
-        const totalIncome = levelIncome + ROI;
+        const totalIncome = levelIncome + singleLegIncome;
 
         return {
-            wallet, rank, direct, downline, singleLeg, levelIncome, ROI, totalWithdrawal, totalIncome
+            wallet, rank, direct, downline, singleLeg, levelIncome, singleLegIncome, totalWithdrawal, totalIncome
         };
     }
 

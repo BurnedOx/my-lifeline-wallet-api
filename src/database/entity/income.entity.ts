@@ -30,12 +30,4 @@ export class Income extends Base {
             from: { id: from.id, name: from.name }
         };
     }
-
-    get trxObject(): TransactionRO {
-        const { amount: credit, currentBalance, createdAt, level } = this;
-        return {
-            remarks: `Level ${level} Income`,
-            currentBalance, createdAt, credit
-        };
-    }
 }

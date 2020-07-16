@@ -4,6 +4,7 @@ import { User } from 'src/database/entity/user.entity';
 import { Repository, Not, Between, getManager } from 'typeorm';
 import { Withdrawal } from 'src/database/entity/withdrawal.entity';
 import { WithdrawalDTO } from './withdrawal.dto';
+import { Transaction } from 'src/database/entity/transaction.entity';
 
 @Injectable()
 export class WithdrawalService {
@@ -13,6 +14,9 @@ export class WithdrawalService {
 
         @InjectRepository(Withdrawal)
         private readonly withdrawlRepo: Repository<Withdrawal>,
+
+        @InjectRepository(Transaction)
+        private readonly trxRepo: Repository<Transaction>,
     ) { }
 
     async get(userId: string) {
@@ -79,6 +83,16 @@ export class WithdrawalService {
             if (status === 'cancelled') {
                 owner.balance = owner.balance + withdrawl.withdrawAmount;
                 trx.save(owner);
+            }
+            if (status === 'paid') {
+                const transaction = this.trxRepo.create({
+                    amount: withdrawl.withdrawAmount,
+                    currentBalance: withdrawl.netAmount,
+                    type: 'debit',
+                    remarks: 'Withdrawal Payment',
+                    owner
+                });
+                trx.save(transaction);
             }
             return 'ok';
         });

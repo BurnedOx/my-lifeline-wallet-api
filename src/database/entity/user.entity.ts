@@ -5,9 +5,9 @@ import * as bcrypct from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { EPin } from "./epin.entity";
 import { Income } from "./income.entity";
-import { ROI } from "./roi.entity";
 import { Rank } from "./rank.entity";
 import { Withdrawal } from "./withdrawal.entity";
+import { Transaction } from "./transaction.entity";
 
 @Entity()
 export class User extends Base {
@@ -58,9 +58,6 @@ export class User extends Base {
     @OneToMany(() => Income, income => income.from)
     generatedIncomes: Income[];
 
-    @OneToMany(() => ROI, roi => roi.owner)
-    singleLegIncomes: ROI[];
-
     @OneToMany(() => Rank, rank => rank.owner)
     @JoinColumn()
     ranks: Rank[];
@@ -71,6 +68,9 @@ export class User extends Base {
 
     @OneToMany(() => Withdrawal, withdrawal => withdrawal.owner)
     withdrawals: Withdrawal[];
+
+    @OneToMany(() => Transaction, trx => trx.owner)
+    trx: Transaction[];
 
     @BeforeInsert()
     async hashPassword() {
@@ -98,9 +98,9 @@ export class User extends Base {
     }
 
     toResponseObject(getToken: boolean = false): UserRO {
-        const { id, name, mobile, panNumber, bankDetails, roll, status, sponsoredBy, activatedAt, updatedAt, createdAt } = this;
+        const { id, name, mobile, balance: wallet, panNumber, bankDetails, roll, status, sponsoredBy, activatedAt, updatedAt, createdAt } = this;
         const data: UserRO = {
-            id, name, mobile, panNumber, roll, status, bankDetails, activatedAt, updatedAt, createdAt,
+            id, name, mobile, wallet, panNumber, roll, status, bankDetails, activatedAt, updatedAt, createdAt,
             sponsoredBy: sponsoredBy ? { id: sponsoredBy.id, name: sponsoredBy.name } : null,
             epinId: this.epin?.id ?? null,
         };

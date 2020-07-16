@@ -8,7 +8,6 @@ import { CommonModule } from './common/common.module';
 import { EpinModule } from './epin/epin.module';
 import { MembersModule } from './members/members.module';
 import { IncomeModule } from './income/income.module';
-import { RoiModule } from './roi/roi.module';
 import { RankModule } from './rank/rank.module';
 import { WithdrawalModule } from './withdrawal/withdrawal.module';
 import { TransactionModule } from './transaction/transaction.module';
@@ -17,7 +16,7 @@ import { TransactionModule } from './transaction/transaction.module';
   imports: [
     TypeOrmModule.forRoot(),
     ScheduleModule.forRoot(),
-    AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, RoiModule, RankModule, WithdrawalModule, TransactionModule
+    AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, RankModule, WithdrawalModule, TransactionModule
   ],
   controllers: [AppController],
   providers: [AppService],

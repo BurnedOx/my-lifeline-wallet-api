@@ -2,8 +2,6 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { Repository, Not, IsNull, getManager } from 'typeorm';
-import { MemberRO } from 'src/interfaces';
-import { async } from 'rxjs/internal/scheduler/async';
 
 @Injectable()
 export class MembersService {

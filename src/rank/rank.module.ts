@@ -4,9 +4,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Rank } from 'src/database/entity/rank.entity';
 import { User } from 'src/database/entity/user.entity';
 import { RankController } from './rank.controller';
+import { Transaction } from 'src/database/entity/transaction.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Rank, User])],
+  imports: [TypeOrmModule.forFeature([Rank, User, Transaction])],
   providers: [RankService],
   exports: [RankService],
   controllers: [RankController]

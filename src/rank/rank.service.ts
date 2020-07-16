@@ -5,6 +5,7 @@ import { Repository, Not, IsNull, getManager } from 'typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { Ranks } from 'src/common/costraints';
 import { RankDTO } from './rank.dto';
+import { Transaction } from 'src/database/entity/transaction.entity';
 
 @Injectable()
 export class RankService {
@@ -16,6 +17,9 @@ export class RankService {
 
         @InjectRepository(User)
         private readonly userRepo: Repository<User>,
+
+        @InjectRepository(Transaction)
+        private readonly trxRepo: Repository<Transaction>
     ) { }
 
     async generateRanks(userId: string) {
@@ -36,9 +40,20 @@ export class RankService {
                         direct = direct.slice(0, rank.direct);
                         const newRank = this.rankRepo.create({
                             rank: rank.type,
+                            income: rank.income,
                             owner: user, direct
                         });
                         await trx.save(newRank);
+                        user.balance += rank.income;
+                        await trx.save(user);
+                        const transaction = this.trxRepo.create({
+                            amount: rank.income,
+                            currentBalance: user.balance,
+                            type: 'credit',
+                            remarks: `From ${rank.type} generation`,
+                            owner: user
+                        });
+                        await trx.save(transaction);
                     }
                 }
             });
@@ -64,9 +79,20 @@ export class RankService {
                 if (user && !(existingRankNames.includes(rank))) {
                     const newRank = await this.rankRepo.create({
                         owner: user,
+                        income: rankObj.income,
                         rank, direct
                     });
                     await trx.save(newRank);
+                    user.balance += rankObj.income;
+                    await trx.save(user);
+                    const transaction = this.trxRepo.create({
+                        amount: rankObj.income,
+                        currentBalance: user.balance,
+                        type: 'credit',
+                        remarks: `From ${rank} generation`,
+                        owner: user
+                    });
+                    await trx.save(transaction);
                 }
             }
         });

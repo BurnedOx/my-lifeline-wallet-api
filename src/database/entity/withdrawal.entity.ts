@@ -27,14 +27,6 @@ export class Withdrawal extends Base {
     @JoinColumn()
     owner: User;
 
-    get trxObject(): TransactionRO {
-        const { withdrawAmount: debit, netAmount: currentBalance, createdAt } = this;
-        return {
-            remarks: 'Withdrawal',
-            debit, currentBalance, createdAt,
-        }
-    }
-
     toResponseObject(): WithdrawalRO {
         const {
             id,

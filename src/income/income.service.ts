@@ -4,6 +4,7 @@ import { Income } from 'src/database/entity/income.entity';
 import { Repository, EntityManager } from 'typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { levelIncomeAmount } from 'src/common/costraints';
+import { Transaction } from 'src/database/entity/transaction.entity';
 
 @Injectable()
 export class IncomeService {
@@ -12,7 +13,10 @@ export class IncomeService {
         private readonly incomeRepo: Repository<Income>,
 
         @InjectRepository(User)
-        private readonly userRepo: Repository<User>
+        private readonly userRepo: Repository<User>,
+
+        @InjectRepository(Transaction)
+        private readonly trxRepo: Repository<Transaction>
     ) {}
 
     async getIncomes(userId: string) {
@@ -50,6 +54,14 @@ export class IncomeService {
                 level, from
             });
             await trx.save(income);
+            const transaction = this.trxRepo.create({
+                amount: levelIncomeAmount[level],
+                currentBalance: sponsor.balance,
+                type: 'credit',
+                remarks: `From level ${level} income`,
+                owner: sponsor
+            });
+            await trx.save(transaction);
             sponsor = await this.userRepo.findOne(sponsor.sponsoredBy.id, { relations: ['sponsoredBy'] });
             level++;
         }
