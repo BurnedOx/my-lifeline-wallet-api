@@ -53,7 +53,10 @@ export class WithdrawalService {
             throw new HttpException('not more than one request per day', HttpStatus.BAD_REQUEST);
         }
 
-        if (!(Date.now() >= morning.getTime() && Date.now() <= noon.getTime())) {
+        const indiaTime = new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"});
+        const now = new Date(indiaTime);
+
+        if (!(now.getTime() >= morning.getTime() && now.getTime() <= noon.getTime())) {
             throw new HttpException('incorrect time to request', HttpStatus.BAD_REQUEST);
         }
 
@@ -107,13 +110,14 @@ export class WithdrawalService {
     }
 
     private getTimes() {
-        const morning = new Date();
-        morning.setHours(15);
+        const indiaTime = new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"});
+        const morning = new Date(indiaTime);
+        morning.setHours(9);
         morning.setMinutes(0);
         morning.setSeconds(0);
         morning.setMilliseconds(0);
         const noon = new Date(morning);
-        noon.setHours(17);
+        noon.setHours(14);
 
         return [morning, noon];
     }
