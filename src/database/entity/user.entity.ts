@@ -59,7 +59,6 @@ export class User extends Base {
     generatedIncomes: Income[];
 
     @OneToMany(() => Rank, rank => rank.owner)
-    @JoinColumn()
     ranks: Rank[];
 
     @ManyToOne(() => Rank, rank => rank.direct, { nullable: true })

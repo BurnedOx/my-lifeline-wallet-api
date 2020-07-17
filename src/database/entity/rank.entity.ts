@@ -11,11 +11,10 @@ export class Rank extends Base {
     @Column()
     income: number;
 
-    @ManyToOne(() => User, user => user.ranks, { onDelete: 'CASCADE' })
+    @ManyToOne(() => User, user => user.ranks, { onDelete: 'CASCADE', nullable: false })
     @JoinColumn()
     owner: User;
 
     @OneToMany(() => User, user => user.generatedRank, { onDelete: 'CASCADE' })
-    @JoinColumn()
     direct: User[];
 }

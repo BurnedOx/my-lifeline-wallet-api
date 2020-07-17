@@ -22,6 +22,12 @@ export class RankService {
         private readonly trxRepo: Repository<Transaction>
     ) { }
 
+    async getRanks(userId: string) {
+        return this.rankRepo.createQueryBuilder("rank")
+            .where("rank.owner.id = :userId", { userId })
+            .getRawMany();
+    }
+
     async generateRanks(userId: string) {
         try {
             const allUsers = await this.userRepo.find({
@@ -38,6 +44,7 @@ export class RankService {
                     const rank = this.getRank(user.totalSingleLeg, direct.length);
                     if (rank && !(existingRankNames.includes(rank.type))) {
                         direct = direct.slice(0, rank.direct);
+                        user = await this.userRepo.findOne(user.id);
                         const newRank = this.rankRepo.create({
                             rank: rank.type,
                             income: rank.income,

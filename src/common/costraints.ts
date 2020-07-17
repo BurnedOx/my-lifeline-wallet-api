@@ -12,13 +12,13 @@ export const Ranks: RankData[] = [
     {
         type: 'RANK1',
         direct: 1,
-        company: 25,
+        company: 3,
         income: 80,
     },
     {
         type: 'RANK2',
         direct: 1,
-        company: 50,
+        company: 4,
         income: 250,
     },
     {
