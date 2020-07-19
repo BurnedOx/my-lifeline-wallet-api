@@ -1,8 +1,9 @@
-import { IsNumber, Min, Max } from "class-validator";
+import { IsNumber, Min, Max, IsDivisibleBy } from "class-validator";
 
 export class WithdrawalDTO {
     @IsNumber()
-    @Min(50)
-    @Max(50)
+    @Min(300)
+    @Max(2000)
+    @IsDivisibleBy(100)
     withdrawAmount: number;
 }
