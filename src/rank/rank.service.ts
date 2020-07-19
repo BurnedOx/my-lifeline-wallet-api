@@ -25,7 +25,7 @@ export class RankService {
     async getRanks(userId: string) {
         return this.rankRepo.createQueryBuilder("rank")
             .where("rank.owner.id = :userId", { userId })
-            .getRawMany();
+            .getMany();
     }
 
     async generateRanks(userId: string) {
