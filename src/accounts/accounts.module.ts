@@ -6,14 +6,27 @@ import { User } from 'src/database/entity/user.entity';
 import { EPin } from 'src/database/entity/epin.entity';
 import { RankModule } from 'src/rank/rank.module';
 import { IncomeModule } from 'src/income/income.module';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
+import { JwtStrategy } from 'src/common/guards/jwt.strategy';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, EPin]),
     RankModule,
-    IncomeModule
+    IncomeModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get('SECRET'),
+        signOptions: {expiresIn: '10000s'}
+      })
+    })
   ],
   controllers: [AccountsController],
-  providers: [AccountsService]
+  providers: [AccountsService, JwtAuthGuard, JwtStrategy],
+  exports: [AccountsService]
 })
 export class AccountsModule { }

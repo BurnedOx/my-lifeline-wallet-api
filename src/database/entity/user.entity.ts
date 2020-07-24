@@ -2,7 +2,6 @@ import { Base } from "./base.entity";
 import { Column, Entity, OneToMany, JoinColumn, ManyToOne, BeforeInsert, OneToOne, ManyToMany, JoinTable } from "typeorm";
 import { BankDetails, UserRO, MemberRO, SingleLegMemberRO } from "src/interfaces";
 import * as bcrypct from 'bcryptjs';
-import * as jwt from 'jsonwebtoken';
 import { EPin } from "./epin.entity";
 import { Income } from "./income.entity";
 import { Rank } from "./rank.entity";
@@ -21,7 +20,7 @@ export class User extends Base {
     password: string;
 
     @Column({ default: 'user' })
-    roll: 'user' | 'admin';
+    role: 'user' | 'admin';
 
     @Column({ default: 'inactive' })
     status: 'active' | 'inactive';
@@ -96,15 +95,15 @@ export class User extends Base {
         return downline;
     }
 
-    toResponseObject(getToken: boolean = false): UserRO {
-        const { id, name, mobile, balance: wallet, panNumber, bankDetails, roll, status, sponsoredBy, activatedAt, updatedAt, createdAt } = this;
+    toResponseObject(token?: string): UserRO {
+        const { id, name, mobile, balance: wallet, panNumber, bankDetails, role: roll, status, sponsoredBy, activatedAt, updatedAt, createdAt } = this;
         const data: UserRO = {
             id, name, mobile, wallet, panNumber, roll, status, bankDetails, activatedAt, updatedAt, createdAt,
             sponsoredBy: sponsoredBy ? { id: sponsoredBy.id, name: sponsoredBy.name } : null,
             epinId: this.epin?.id ?? null,
         };
-        if (getToken) {
-            data.token = this.token;
+        if (token) {
+            data.token = token;
         }
         return data;
     }
@@ -121,10 +120,5 @@ export class User extends Base {
 
     async comparePassword(attempt: string) {
         return await bcrypct.compare(attempt, this.password);
-    }
-
-    private get token() {
-        const { id } = this;
-        return jwt.sign({ id }, process.env.SECRET, { expiresIn: '7d' });
     }
 }

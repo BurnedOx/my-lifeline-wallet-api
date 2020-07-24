@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards, UsePipes } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
-import { AuthGuard } from 'src/common/auth.guard';
+import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { ValidationPipe } from 'src/common/validation.pipe';
 import { HeaderDTO } from 'src/common/dto/base-header.dto';
 import { CustomHeader } from 'src/common/decorators/common-header-decorator';
@@ -11,7 +11,7 @@ export class TransactionController {
     constructor (private readonly transactionService: TransactionService) {}
 
     @Get()
-    @UseGuards(new AuthGuard())
+    @UseGuards(JwtAuthGuard)
     @UsePipes(new ValidationPipe())
     getMyTransactions(@CustomHeader() headers: HeaderDTO) {
         return this.transactionService.getUserTransactions(headers.userId);

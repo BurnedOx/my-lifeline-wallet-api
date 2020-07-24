@@ -44,7 +44,7 @@ export class IncomeService {
         if (from.status === 'inactive') return;
         let level: number = 1;
         let sponsor: User = await this.userRepo.findOne(from.sponsoredBy.id, { relations: ['sponsoredBy'] });
-        while (level <= 5 && sponsor.roll === 'user') {
+        while (level <= 5 && sponsor.role === 'user') {
             sponsor.balance = sponsor.balance + levelIncomeAmount[level];
             await trx.save(sponsor);
             const income = this.incomeRepo.create({

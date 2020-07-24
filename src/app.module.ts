@@ -11,11 +11,16 @@ import { IncomeModule } from './income/income.module';
 import { RankModule } from './rank/rank.module';
 import { WithdrawalModule } from './withdrawal/withdrawal.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(),
     ScheduleModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env'
+    }),
     AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, RankModule, WithdrawalModule, TransactionModule
   ],
   controllers: [AppController],

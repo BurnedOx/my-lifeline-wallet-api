@@ -1,5 +1,5 @@
 import { Controller, Get, UseGuards, UsePipes } from '@nestjs/common';
-import { AuthGuard } from 'src/common/auth.guard';
+import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { ValidationPipe } from 'src/common/validation.pipe';
 import { CustomHeader } from 'src/common/decorators/common-header-decorator';
 import { HeaderDTO } from 'src/common/dto/base-header.dto';
@@ -10,7 +10,7 @@ export class IncomeController {
     constructor(private readonly incomeService: IncomeService) {}
 
     @Get()
-    @UseGuards(new AuthGuard())
+    @UseGuards(JwtAuthGuard)
     @UsePipes(new ValidationPipe())
     getIncomes(@CustomHeader() headers: HeaderDTO) {
         return this.incomeService.getIncomes(headers.userId);

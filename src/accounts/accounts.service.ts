@@ -7,8 +7,11 @@ import { EPin } from 'src/database/entity/epin.entity';
 import { RankService } from 'src/rank/rank.service';
 import { IncomeService } from 'src/income/income.service';
 import * as bcrypct from 'bcryptjs';
-import { UserDetailsRO } from 'src/interfaces';
+import { UserDetailsRO, UserRO } from 'src/interfaces';
 import { Ranks } from 'src/common/costraints';
+import { JwtService } from '@nestjs/jwt';
+import { from, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class AccountsService {
@@ -22,21 +25,30 @@ export class AccountsService {
         private readonly incomeService: IncomeService,
 
         private readonly rankService: RankService,
+
+        private readonly jwtService: JwtService,
     ) { }
+
+    findOne(id: string): Observable<User> {
+        return from(this.userRepo.findOne({ id })).pipe(
+            map((user: User) => user)
+        )
+    }
 
     async getAll() {
         const users = await this.userRepo.find({ relations: ['sponsoredBy', 'epin', 'ranks'] });
         return users.map(user => user.toResponseObject());
     }
 
-    async login(data: LoginDTO) {
+    async login(data: LoginDTO, admin: boolean = false) {
         const { userId, password } = data;
         const user = await this.userRepo.findOne(userId, { relations: ['sponsoredBy', 'epin', 'ranks'] });
 
-        if (!user || !(await user.comparePassword(password))) {
+        if (!user || !(await user.comparePassword(password)) || (admin && user.role !== 'admin')) {
             throw new HttpException('Invalid userid/password', HttpStatus.BAD_REQUEST);
         }
-        return user.toResponseObject(true);
+        const token = await this.generateJWT(userId);
+        return user.toResponseObject(token);
     }
 
     async register(data: RegistrationDTO) {
@@ -49,12 +61,12 @@ export class AccountsService {
             throw new HttpException('Inactive sponsor', HttpStatus.BAD_REQUEST);
         }
         const user = await this.userRepo.create({
-            roll: 'user',
+            role: 'user',
             name, password, mobile, sponsoredBy
         });
         await this.userRepo.save(user);
-
-        return user.toResponseObject(true);
+        const token = await this.generateJWT(user.id);
+        return user.toResponseObject(token);
     }
 
     async getDetails(userId: string): Promise<UserDetailsRO> {
@@ -106,13 +118,14 @@ export class AccountsService {
     async registerAdmin(data: AdminRegistrationDTO) {
         const { name, mobile, password } = data;
         const user = await this.userRepo.create({
-            roll: 'admin',
+            role: 'admin',
             sponsoredBy: null,
             status: 'active',
             name, mobile, password,
         });
         await this.userRepo.save(user);
-        return user.toResponseObject(true)
+        const token = await this.generateJWT(user.id);
+        return user.toResponseObject(token);
     }
 
     async activateAccount(epinId: string, userId: string) {
@@ -214,5 +227,9 @@ export class AccountsService {
     async deleteUser(id: string) {
         await this.userRepo.delete(id);
         return 'ok';
+    }
+
+    private generateJWT(userId: string) {
+        return this.jwtService.signAsync({ userId });
     }
 }
