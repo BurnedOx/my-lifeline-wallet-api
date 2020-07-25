@@ -183,6 +183,19 @@ export class AccountsService {
         return 'ok';
     }
 
+    async forgotPassword(id: string, newPassword: string) {
+        const user = await this.userRepo.findOne({ id });
+
+        if (!user) {
+            throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+        }
+
+        user.password = await bcrypct.hash(newPassword, 10);
+        await this.userRepo.save(user);
+
+        return 'ok';
+    }
+
     async updateBankDetails(data: BankDTO, userId: string) {
         const user = await this.userRepo.update(userId, { bankDetails: data });
         if (user.affected > 0) {

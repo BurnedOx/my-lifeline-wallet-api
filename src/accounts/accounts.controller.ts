@@ -72,6 +72,14 @@ export class AccountsController {
         return this.accountsService.updatePassword(data, headers.userId);
     }
 
+    @Put('admin/password')
+    @hasRoles('admin')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UsePipes(new ValidationPipe())
+    forgotPassword(@Body('userId') userId: string, @Body('password') password: string) {
+        return this.accountsService.forgotPassword(userId, password);
+    }
+
     @Put('bank')
     @UseGuards(JwtAuthGuard)
     @UsePipes(new ValidationPipe())
