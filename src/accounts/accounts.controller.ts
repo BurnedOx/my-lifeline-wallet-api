@@ -1,7 +1,7 @@
 import { Controller, Post, UsePipes, Get, Body, UseGuards, Put, Delete, Param } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { ValidationPipe } from '../common/validation.pipe';
-import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO, UpdatePasswordDTO, ProfileDTO, BankDTO } from './accounts.dto';
+import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO, UpdatePasswordDTO, ProfileDTO, BankDTO, AdminProfileDTO } from './accounts.dto';
 import { JwtAuthGuard } from '../common/guards/jwt.guard';
 import { HeaderDTO } from 'src/common/dto/base-header.dto';
 import { CustomHeader } from 'src/common/decorators/common-header-decorator';
@@ -65,6 +65,15 @@ export class AccountsController {
         return this.accountsService.updateProfile(data, headers.userId);
     }
 
+    @Put('admin/profile')
+    @hasRoles('admin')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UsePipes(new ValidationPipe())
+    updateProfileByAdmin(@Body() data: AdminProfileDTO) {
+        const { userId, ...rest } = data;
+        return this.accountsService.updateProfile(rest, userId);
+    }
+
     @Put('password')
     @UseGuards(JwtAuthGuard)
     @UsePipes(new ValidationPipe())
@@ -88,20 +97,23 @@ export class AccountsController {
     }
 
     @Put('update-sponsor')
-    @UseGuards(JwtAuthGuard)
+    @hasRoles('admin')
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @UsePipes(new ValidationPipe())
     updateSponsor(@Body() data: SponsorUpdateDTO) {
         return this.accountsService.updateSponsor(data);
     }
 
     @Put('wallet-reset')
-    @UseGuards(JwtAuthGuard)
+    @hasRoles('admin')
+    @UseGuards(JwtAuthGuard, RolesGuard)
     resetWallets() {
         return this.accountsService.resetBalance();
     }
 
     @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+    @hasRoles('admin')
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @UsePipes(new ValidationPipe())
     deleteUser(@Param('id') id: string) {
         return this.accountsService.deleteUser(id);

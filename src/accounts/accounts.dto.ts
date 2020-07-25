@@ -73,6 +73,12 @@ export class ProfileDTO {
     panNumber?: string;
 }
 
+export class AdminProfileDTO extends ProfileDTO {
+    @IsString()
+    @IsNotEmpty()
+    userId: string;
+}
+
 export class BankDTO implements BankDetails {
     @IsString()
     accountName: string;
