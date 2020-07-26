@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Param, Post, Put, Body, UsePipes } from '@nestjs/common';
+import { Controller, Get, UseGuards, Param, Post, Put, Body, UsePipes, Query } from '@nestjs/common';
 import { EpinService } from './epin.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { CustomHeader } from 'src/common/decorators/common-header-decorator';
@@ -14,15 +14,9 @@ export class EpinController {
     @Get()
     @hasRoles('admin')
     @UseGuards(JwtAuthGuard, RolesGuard)
-    getAll() {
-        return this.epinService.getAll();
-    }
-
-    @Get('unused')
-    @hasRoles('admin')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    getUnused() {
-        return this.epinService.getAllUsable();
+    @UsePipes(new ValidationPipe())
+    getAll(@Query('status') status?: 'used' | 'unused') {
+        return this.epinService.getAll(status);
     }
 
     @Get('my')

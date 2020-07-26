@@ -14,14 +14,17 @@ export class EpinService {
         private readonly userRepo: Repository<User>,
     ) { }
 
-    async getAll() {
-        const epins = await this.epinRepo.find({ relations: ['owner'] });
-        return epins.map(e => e.toResponseObject());
-    }
+    async getAll(status?: 'used' | 'unused') {
+        let epins: EPin[];
 
-    async getAllUsable() {
-        const epins = await this.getAll();
-        return epins.filter(e => e.owner === null);
+        if (status === 'used') {
+            epins = await EPin.getUsed();
+        } else if (status === 'unused') {
+            epins = await EPin.getUnused();
+        } else {
+            epins = await EPin.getAll();
+        }
+        return epins.map(e => e.toResponseObject());
     }
 
     async getEpin(userId: string) {

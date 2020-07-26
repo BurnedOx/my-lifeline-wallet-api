@@ -53,6 +53,7 @@ export interface SingleLegMemberRO {
 export interface EpinRO {
     id: string;
     owner: Pick<UserRO, 'id' | 'name'> | null;
+    status: 'used' | 'unused';
     updatedAt: Date;
     createdAt: Date;
 }
