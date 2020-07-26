@@ -26,8 +26,13 @@ export class WithdrawalService {
     }
 
     async getAll(status?: 'paid' | 'unpaid' | 'cancelled') {
-        const withdrawls = await this.withdrawlRepo.find({ where: { status }, relations: ['owner'] });
-        return withdrawls.map(w => ({
+        let withdrawals: Withdrawal[];
+        if (status) {
+            withdrawals = await this.withdrawlRepo.find({ where: { status }, relations: ['owner'] });
+        } else {
+            withdrawals = await this.withdrawlRepo.find({ relations: ['owner'] });
+        }
+        return withdrawals.map(w => ({
             ...w.toResponseObject(),
             fromId: w.owner.id,
             fromName: w.owner.name
@@ -53,7 +58,7 @@ export class WithdrawalService {
             throw new HttpException('not more than one request per day', HttpStatus.BAD_REQUEST);
         }
 
-        const indiaTime = new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"});
+        const indiaTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
         const now = new Date(indiaTime);
 
         if (!(now.getTime() >= morning.getTime() && now.getTime() <= noon.getTime())) {
@@ -82,10 +87,10 @@ export class WithdrawalService {
 
         return getManager().transaction(async trx => {
             withdrawl.status = status;
-            trx.save(withdrawl);
+            await trx.save(withdrawl);
             if (status === 'cancelled') {
                 owner.balance = owner.balance + withdrawl.withdrawAmount;
-                trx.save(owner);
+                await trx.save(owner);
             }
             if (status === 'paid') {
                 const transaction = this.trxRepo.create({
@@ -95,7 +100,66 @@ export class WithdrawalService {
                     remarks: 'Withdrawal Payment',
                     owner
                 });
-                trx.save(transaction);
+                await trx.save(transaction);
+            }
+            return 'ok';
+        });
+    }
+
+    async payMultiple(ids: string) {
+        const withdrawals = await this.withdrawlRepo.findByIds(ids.split(','), { relations: ['owner'] });
+
+        return getManager().transaction(async trx => {
+            for (let withdrawal of withdrawals) {
+                const { owner } = withdrawal;
+
+                if (withdrawal.status === 'cancelled') {
+                    throw new HttpException(`${withdrawal.id} already canceled`, HttpStatus.BAD_REQUEST);
+                }
+                withdrawal.status = 'paid';
+                await trx.save(withdrawal);
+
+                const transaction = this.trxRepo.create({
+                    amount: withdrawal.withdrawAmount,
+                    currentBalance: withdrawal.netAmount,
+                    type: 'debit',
+                    remarks: 'Withdrawal Payment',
+                    owner
+                });
+                await trx.save(transaction);
+            }
+            return 'ok';
+        });
+    }
+
+    async unpayMultiple(ids: string) {
+        const withdrawals = await this.withdrawlRepo.findByIds(ids.split(','));
+
+        return getManager().transaction(async trx => {
+            for (let withdrawal of withdrawals) {
+                if (withdrawal.status === 'cancelled') {
+                    throw new HttpException(`${withdrawal.id} already canceled`, HttpStatus.BAD_REQUEST);
+                }
+                withdrawal.status = 'unpaid';
+                await trx.save(withdrawal);
+            }
+            return 'ok';
+        });
+    }
+
+    async cancelMultiple(ids: string) {
+        const withdrawals = await this.withdrawlRepo.findByIds(ids.split(','), { relations: ['owner'] });
+
+        return getManager().transaction(async trx => {
+            for (let withdrawal of withdrawals) {
+                if (withdrawal.status === 'cancelled') {
+                    throw new HttpException(`${withdrawal.id} already canceled`, HttpStatus.BAD_REQUEST);
+                }
+                const { owner } = withdrawal;
+                owner.balance = owner.balance + withdrawal.withdrawAmount;
+                await trx.save(owner);
+                withdrawal.status = 'cancelled';
+                await trx.save(withdrawal);
             }
             return 'ok';
         });
@@ -110,7 +174,7 @@ export class WithdrawalService {
     }
 
     private getTimes() {
-        const indiaTime = new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"});
+        const indiaTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
         const morning = new Date(indiaTime);
         morning.setHours(9);
         morning.setMinutes(0);

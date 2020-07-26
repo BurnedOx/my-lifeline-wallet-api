@@ -26,7 +26,6 @@ import { JwtStrategy } from 'src/common/guards/jwt.strategy';
     })
   ],
   controllers: [AccountsController],
-  providers: [AccountsService, JwtAuthGuard, JwtStrategy],
-  exports: [AccountsService]
+  providers: [AccountsService, JwtAuthGuard, JwtStrategy]
 })
 export class AccountsModule { }

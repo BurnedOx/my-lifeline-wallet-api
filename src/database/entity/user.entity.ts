@@ -7,6 +7,8 @@ import { Income } from "./income.entity";
 import { Rank } from "./rank.entity";
 import { Withdrawal } from "./withdrawal.entity";
 import { Transaction } from "./transaction.entity";
+import { from } from "rxjs";
+import { map } from "rxjs/operators";
 
 @Entity()
 export class User extends Base {
@@ -77,6 +79,12 @@ export class User extends Base {
 
     /* Methods to render response objects
     And Queries */
+
+    public static findById(id: string) {
+        return from(this.findOne({ id })).pipe(
+            map((user: User) => user)
+        );
+    }
 
     public static async getDownline(
         root: User,

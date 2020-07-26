@@ -9,9 +9,6 @@ import { User } from "src/database/entity/user.entity";
 export class RolesGuard implements CanActivate {
     constructor(
         private reflector: Reflector,
-
-        @Inject(forwardRef(() => AccountsService))
-        private accountService: AccountsService,
     ) { }
 
     canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
@@ -20,13 +17,12 @@ export class RolesGuard implements CanActivate {
         if (!roles) {
             return true;
         }
-
         
         const request = context.switchToHttp().getRequest();
         const userId = request.user.userId;
 
-        return this.accountService.findOne(userId).pipe(
-            map((user: User) => {
+        return User.findById(userId).pipe(
+            map((user) => {
                 const hasRole = () => roles.indexOf(user.role) > -1;
                 let hasPermission: boolean = false;
 
