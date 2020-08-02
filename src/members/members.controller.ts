@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, UsePipes, Put } from '@nestjs/common';
+import { Controller, Get, UseGuards, UsePipes, Put, Param } from '@nestjs/common';
 import { MembersService } from './members.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { ValidationPipe } from 'src/common/validation.pipe';
@@ -18,6 +18,14 @@ export class MembersController {
         return this.membersService.directMembers(headers.userId);
     }
 
+    @Get(':id/direct')
+    @hasRoles('admin')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UsePipes(new ValidationPipe())
+    adminGetDirect(@Param('id') id: string) {
+        return this.membersService.directMembers(id);
+    }
+
     @Get('downline')
     @UseGuards(JwtAuthGuard)
     @UsePipes(new ValidationPipe())
@@ -30,6 +38,14 @@ export class MembersController {
     @UsePipes(new ValidationPipe())
     singleLegMembers(@CustomHeader() headers: HeaderDTO) {
         return this.membersService.singleLegMembers(headers.userId);
+    }
+
+    @Get(':id/single-leg')
+    @hasRoles('admin')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UsePipes(new ValidationPipe())
+    getAdminSingleLeg(@Param('id') id: string) {
+        return this.membersService.singleLegMembers(id);
     }
 
     @Put('update-single-leg')
