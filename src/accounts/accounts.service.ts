@@ -29,9 +29,9 @@ export class AccountsService {
         private readonly jwtService: JwtService,
     ) { }
 
-    findOne(id: string): Observable<User> {
-        return from(this.userRepo.findOne({ id })).pipe(
-            map((user: User) => user)
+    findOne(id: string): Observable<UserRO> {
+        return from(this.userRepo.findOne(id, { relations: ['sponsoredBy', 'epin', 'ranks'] })).pipe(
+            map((user) => user?.toResponseObject())
         )
     }
 

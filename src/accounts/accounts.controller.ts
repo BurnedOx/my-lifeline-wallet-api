@@ -1,7 +1,7 @@
 import { Controller, Post, UsePipes, Get, Body, UseGuards, Put, Delete, Param } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { ValidationPipe } from '../common/validation.pipe';
-import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO, UpdatePasswordDTO, ProfileDTO, BankDTO, AdminProfileDTO } from './accounts.dto';
+import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO, UpdatePasswordDTO, ProfileDTO, BankDTO } from './accounts.dto';
 import { JwtAuthGuard } from '../common/guards/jwt.guard';
 import { HeaderDTO } from 'src/common/dto/base-header.dto';
 import { CustomHeader } from 'src/common/decorators/common-header-decorator';
@@ -19,6 +19,12 @@ export class AccountsController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     getAllUsers() {
         return this.accountsService.getAll();
+    }
+
+    @Get('users/:id')
+    @UseGuards(JwtAuthGuard)
+    getUser(@Param('id') id: string) {
+        return this.accountsService.findOne(id);
     }
 
     @Post('admin/register')
@@ -51,6 +57,14 @@ export class AccountsController {
         return this.accountsService.getDetails(headers.userId);
     }
 
+    @Get('details/:id')
+    @hasRoles('admin')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UsePipes(new ValidationPipe())
+    getDetailsByAdmin(@Param('id') id: string) {
+        return this.accountsService.getDetails(id);
+    }
+
     @Put('activate')
     @UseGuards(JwtAuthGuard)
     @UsePipes(new ValidationPipe())
@@ -65,13 +79,12 @@ export class AccountsController {
         return this.accountsService.updateProfile(data, headers.userId);
     }
 
-    @Put('admin/profile')
+    @Put('admin/profile/:id')
     @hasRoles('admin')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @UsePipes(new ValidationPipe())
-    updateProfileByAdmin(@Body() data: AdminProfileDTO) {
-        const { userId, ...rest } = data;
-        return this.accountsService.updateProfile(rest, userId);
+    updateProfileByAdmin(@Body() data: ProfileDTO, @Param('id') userId: string) {
+        return this.accountsService.updateProfile(data, userId);
     }
 
     @Put('password')
@@ -94,6 +107,14 @@ export class AccountsController {
     @UsePipes(new ValidationPipe())
     updateBankDetails(@Body() data: BankDTO, @CustomHeader() headers: HeaderDTO) {
         return this.accountsService.updateBankDetails(data, headers.userId);
+    }
+
+    @Put('bank/:id')
+    @hasRoles('admin')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UsePipes(new ValidationPipe())
+    updateBankDetailsByAdmin(@Param('id') id: string, @Body() data: BankDTO) {
+        return this.accountsService.updateBankDetails(data, id);
     }
 
     @Put('update-sponsor')
