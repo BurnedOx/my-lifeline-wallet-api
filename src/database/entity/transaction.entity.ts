@@ -22,12 +22,12 @@ export class Transaction extends Base {
     owner: User;
 
     get responseObj(): TransactionRO {
-        const { amount, currentBalance, type, remarks, createdAt } = this;
+        const { id, amount, currentBalance, type, remarks, createdAt } = this;
 
         return {
             credit: type === 'credit' ? amount : undefined,
             debit: type === 'debit' ? amount : undefined,
-            currentBalance, remarks, createdAt
+            currentBalance, remarks, createdAt, id
         };
     }
 }

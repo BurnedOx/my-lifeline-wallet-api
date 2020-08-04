@@ -1,7 +1,7 @@
 import { Controller, Post, UsePipes, Get, Body, UseGuards, Put, Delete, Param } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { ValidationPipe } from '../common/validation.pipe';
-import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO, UpdatePasswordDTO, ProfileDTO, BankDTO } from './accounts.dto';
+import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, UpdatePasswordDTO, ProfileDTO, BankDTO } from './accounts.dto';
 import { JwtAuthGuard } from '../common/guards/jwt.guard';
 import { HeaderDTO } from 'src/common/dto/base-header.dto';
 import { CustomHeader } from 'src/common/decorators/common-header-decorator';
@@ -79,7 +79,7 @@ export class AccountsController {
         return this.accountsService.updateProfile(data, headers.userId);
     }
 
-    @Put('admin/profile/:id')
+    @Put('profile/:id')
     @hasRoles('admin')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @UsePipes(new ValidationPipe())
@@ -94,11 +94,11 @@ export class AccountsController {
         return this.accountsService.updatePassword(data, headers.userId);
     }
 
-    @Put('admin/password')
+    @Put('password/:id')
     @hasRoles('admin')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @UsePipes(new ValidationPipe())
-    forgotPassword(@Body('userId') userId: string, @Body('password') password: string) {
+    forgotPassword(@Param('id') userId: string, @Body('password') password: string) {
         return this.accountsService.forgotPassword(userId, password);
     }
 
@@ -117,12 +117,12 @@ export class AccountsController {
         return this.accountsService.updateBankDetails(data, id);
     }
 
-    @Put('update-sponsor')
+    @Put('update-sponsor/:id')
     @hasRoles('admin')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @UsePipes(new ValidationPipe())
-    updateSponsor(@Body() data: SponsorUpdateDTO) {
-        return this.accountsService.updateSponsor(data);
+    updateSponsor(@Body('sponsorId') sponsorId: string, @Param('id') id: string) {
+        return this.accountsService.updateSponsor(id, sponsorId);
     }
 
     @Put('wallet-reset')

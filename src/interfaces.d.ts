@@ -89,6 +89,7 @@ export interface RankData {
 }
 
 export interface TransactionRO {
+    id: string;
     credit?: number;
     debit?: number;
     currentBalance: number;

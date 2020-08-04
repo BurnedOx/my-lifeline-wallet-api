@@ -51,14 +51,6 @@ export class UpdatePasswordDTO {
     newPassword: string;
 }
 
-export class SponsorUpdateDTO {
-    @IsString()
-    userId: string;
-
-    @IsString()
-    sponsorId: string;
-}
-
 export class ProfileDTO {
     @IsString()
     @IsOptional()

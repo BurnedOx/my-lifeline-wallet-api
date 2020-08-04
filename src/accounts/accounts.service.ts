@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus, Logger, Inject } from '@nestjs/c
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { Repository, getManager } from 'typeorm';
-import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, SponsorUpdateDTO, UpdatePasswordDTO, ProfileDTO, BankDTO } from './accounts.dto';
+import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, UpdatePasswordDTO, ProfileDTO, BankDTO } from './accounts.dto';
 import { EPin } from 'src/database/entity/epin.entity';
 import { RankService } from 'src/rank/rank.service';
 import { IncomeService } from 'src/income/income.service';
@@ -205,8 +205,7 @@ export class AccountsService {
         }
     }
 
-    async updateSponsor(data: SponsorUpdateDTO) {
-        const { userId, sponsorId } = data;
+    async updateSponsor(userId: string, sponsorId: string) {
         const sponsor = await this.userRepo.findOne(sponsorId);
         if (!sponsor && !(sponsor.status === 'active')) {
             throw new HttpException('Invalid Sponsor', HttpStatus.BAD_REQUEST);
