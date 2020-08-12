@@ -12,6 +12,7 @@ import { Ranks } from 'src/common/costraints';
 import { JwtService } from '@nestjs/jwt';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AWSHandler } from 'src/common/aws/aws';
 
 @Injectable()
 export class AccountsService {
@@ -27,6 +28,8 @@ export class AccountsService {
         private readonly rankService: RankService,
 
         private readonly jwtService: JwtService,
+
+        private readonly aws: AWSHandler,
     ) { }
 
     findOne(id: string): Observable<UserRO> {
@@ -66,6 +69,15 @@ export class AccountsService {
         });
         await this.userRepo.save(user);
         const token = await this.generateJWT(user.id);
+        this.aws.sendSMS(
+            `Wellcome to My-Lifeline-Wallet\n
+            You have successfully registered\n
+            Your User Id: ${user.id}\n
+            Your Password: ${password}\n
+            Please visit: http://my-lifeline-wallet.s3-website.us-east-2.amazonaws.com/`,
+            `${mobile}`,
+            'mlwallet'
+        )
         return user.toResponseObject(token);
     }
 

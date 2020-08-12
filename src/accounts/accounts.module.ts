@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { JwtStrategy } from 'src/common/guards/jwt.strategy';
+import { AWSHandler } from 'src/common/aws/aws';
 
 @Module({
   imports: [
@@ -26,6 +27,6 @@ import { JwtStrategy } from 'src/common/guards/jwt.strategy';
     })
   ],
   controllers: [AccountsController],
-  providers: [AccountsService, JwtAuthGuard, JwtStrategy]
+  providers: [AccountsService, JwtAuthGuard, JwtStrategy, AWSHandler]
 })
 export class AccountsModule { }
