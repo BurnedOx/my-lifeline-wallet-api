@@ -31,7 +31,7 @@
     "@nestjs/typeorm": "^7.0.0",
     "aws-sdk": "^2.730.0",
     "bcryptjs": "^2.4.3",
-    "class-transformer": "^0.2.3",
+    "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
     "dotenv": "^8.2.0",
     "jsonwebtoken": "^8.5.1",
