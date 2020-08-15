@@ -1,4 +1,3 @@
-import { from } from "rxjs";
 import { Injectable } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
 
