@@ -11,7 +11,6 @@ import { IncomeModule } from './income/income.module';
 import { WithdrawalModule } from './withdrawal/withdrawal.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { ConfigModule } from '@nestjs/config';
-import { RapidModule } from './rapid/rapid.module';
 import { UserEpinModule } from './user-epin/user-epin.module';
 import { EpinHistoryModule } from './epin-history/epin-history.module';
 import { PaymentModule } from './payment/payment.module';
@@ -22,11 +21,20 @@ import { PaymentModule } from './payment/payment.module';
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env'
+      envFilePath: '.env',
     }),
-    AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, WithdrawalModule, TransactionModule, RapidModule, UserEpinModule, EpinHistoryModule, PaymentModule
+    AccountsModule,
+    CommonModule,
+    EpinModule,
+    MembersModule,
+    IncomeModule,
+    WithdrawalModule,
+    TransactionModule,
+    UserEpinModule,
+    EpinHistoryModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

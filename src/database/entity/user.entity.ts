@@ -8,7 +8,6 @@ import { Withdrawal } from "./withdrawal.entity";
 import { Transaction } from "./transaction.entity";
 import { from } from "rxjs";
 import { map } from "rxjs/operators";
-import { Rapid } from "./rapid.entity";
 import { UserEpin } from "./userEpin.entity";
 import { EpinHistory } from "./epinHistory.entity";
 
@@ -54,9 +53,6 @@ export class User extends Base {
 
     @OneToMany(() => Income, income => income.owner)
     incomes: Income[];
-
-    @OneToMany(() => Rapid, rapid => rapid.owner)
-    challenges: Rapid[];
 
     @OneToMany(() => Income, income => income.from)
     generatedIncomes: Income[];

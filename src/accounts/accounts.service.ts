@@ -2,12 +2,9 @@ import {
   Injectable,
   HttpException,
   HttpStatus,
-  Logger,
-  Inject,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
-import { Repository, getManager } from 'typeorm';
+import { getManager } from 'typeorm';
 import {
   RegistrationDTO,
   LoginDTO,
@@ -24,7 +21,6 @@ import { JwtService } from '@nestjs/jwt';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AWSHandler } from 'src/common/aws/aws';
-import { RapidService } from 'src/rapid/rapid.service';
 import { Transaction } from 'src/database/entity/transaction.entity';
 
 type UserFilter = {
@@ -39,8 +35,6 @@ type UserFilter = {
 export class AccountsService {
   constructor(
     private readonly incomeService: IncomeService,
-
-    private readonly rapidService: RapidService,
 
     private readonly jwtService: JwtService,
 
@@ -109,13 +103,13 @@ export class AccountsService {
     await user.save();
     const token = await this.generateJWT(user.id);
     this.aws.sendSMS(
-      `Wellcome to Easy2Earn\n
+      `Wellcome to IPL\n
             You have successfully registered\n
             Your User Id: ${user.id}\n
             Your Password: ${password}\n
-            Please visit: http://easy2earn.s3-website.us-east-2.amazonaws.com/`,
+            Please visit: http://app.ipl.com/`,
       `${mobile}`,
-      'e2earn',
+      'ipl',
     );
     return user.toResponseObject(token);
   }
@@ -195,7 +189,6 @@ export class AccountsService {
       user.activatedAt = new Date();
       await trx.save(user);
       await this.incomeService.generateIncomes(user, trx);
-      await this.rapidService.newChallenge(user, trx);
     });
 
     return user.toResponseObject();
