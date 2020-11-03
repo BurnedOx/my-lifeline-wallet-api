@@ -33,7 +33,7 @@ export class IncomeService {
         if (from.status === 'inactive') return;
         let level: number = 1;
         let sponsor = await trx.findOne(User, from.sponsoredBy.id, { relations: ['sponsoredBy'] });
-        while (level <= 10 && sponsor.role === 'user') {
+        while (level <= 7 && sponsor.role === 'user') {
             const amount = levelIncomeAmount[level];
             sponsor.balance = sponsor.balance + amount;
             await trx.save(sponsor);
