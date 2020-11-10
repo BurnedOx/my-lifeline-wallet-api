@@ -1,4 +1,11 @@
-import { Controller, Get, UseGuards, UsePipes, Put, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  UsePipes,
+  Put,
+  Param,
+} from '@nestjs/common';
 import { MembersService } from './members.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { ValidationPipe } from 'src/common/validation.pipe';
@@ -9,27 +16,35 @@ import { hasRoles } from 'src/common/decorators/roles-decorator';
 
 @Controller('members')
 export class MembersController {
-    constructor(private readonly membersService: MembersService) { }
+  constructor(private readonly membersService: MembersService) {}
 
-    @Get('direct')
-    @UseGuards(JwtAuthGuard)
-    @UsePipes(new ValidationPipe())
-    directMembers(@CustomHeader() headers: HeaderDTO) {
-        return this.membersService.directMembers(headers.userId);
-    }
+  @Get('direct')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(new ValidationPipe())
+  directMembers(@CustomHeader() headers: HeaderDTO) {
+    return this.membersService.directMembers(headers.userId);
+  }
 
-    @Get(':id/direct')
-    @hasRoles('admin')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @UsePipes(new ValidationPipe())
-    adminGetDirect(@Param('id') id: string) {
-        return this.membersService.directMembers(id);
-    }
+  @Get(':id/direct')
+  @hasRoles('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(new ValidationPipe())
+  adminGetDirect(@Param('id') id: string) {
+    return this.membersService.directMembers(id);
+  }
 
-    @Get('downline')
-    @UseGuards(JwtAuthGuard)
-    @UsePipes(new ValidationPipe())
-    downlineMembers(@CustomHeader() headers: HeaderDTO) {
-        return this.membersService.downlineMembers(headers.userId);
-    }
+  @Get('downline')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(new ValidationPipe())
+  downlineMembers(@CustomHeader() headers: HeaderDTO) {
+    return this.membersService.downlineMembers(headers.userId);
+  }
+
+  @Get(':id/downline')
+  @hasRoles('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(new ValidationPipe())
+  adminGetDownline(@Param('id') id: string) {
+    return this.membersService.downlineMembers(id);
+  }
 }

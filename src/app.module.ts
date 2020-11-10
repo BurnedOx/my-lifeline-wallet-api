@@ -14,6 +14,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UserEpinModule } from './user-epin/user-epin.module';
 import { EpinHistoryModule } from './epin-history/epin-history.module';
 import { PaymentModule } from './payment/payment.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { PaymentModule } from './payment/payment.module';
     UserEpinModule,
     EpinHistoryModule,
     PaymentModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -52,7 +52,7 @@ export class AccountsService {
   }
 
   async getAll(filter: UserFilter) {
-    let users = await User.find({ relations: ['sponsoredBy', 'epin'] });
+    let users = await User.find({ relations: ['sponsoredBy', 'epin'], order: {createdAt: 'DESC'} });
     if (filter.status && filter.status !== 'all') {
       users = users.filter(u => u.status === filter.status);
     }
@@ -192,6 +192,12 @@ export class AccountsService {
     });
 
     return user.toResponseObject();
+  }
+
+  async activateByAdmin(userId: string) {
+    const epin = await EPin.create().save();
+    await this.activateAccount(epin.id, userId);
+    return epin.id;
   }
 
   async updateProfile(data: ProfileDTO, userId: string) {

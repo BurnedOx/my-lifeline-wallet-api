@@ -101,3 +101,15 @@ export interface RazorpayResponse {
     currency: string;
     receipt: string;
 }
+
+export interface AdminDashRO {
+    totalMembers: number;
+    activeMembers: number;
+    activationIncome: number;
+    epinIncome: number;
+    totalWithdrawal: number;
+    joinedToday: number;
+    activationWeekly: number[];
+    incomeWeekly: number[];
+    withdrawalWeekly: number[];
+}

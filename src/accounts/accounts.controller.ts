@@ -106,6 +106,14 @@ export class AccountsController {
     return this.accountsService.activateAccount(id, headers.userId);
   }
 
+  @Put('activate/:id')
+  @hasRoles('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(new ValidationPipe())
+  activateByAdmin(@Param('id') id: string) {
+    return this.accountsService.activateByAdmin(id);
+  }
+
   @Put('profile')
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
