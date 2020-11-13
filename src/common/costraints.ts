@@ -5,7 +5,7 @@ export const levelIncomeAmount = {
     4: 10,
     5: 5,
     6: 5,
-    7: 10
+    7: 5
 };
 
 export const EPIN_PRICE = 599;
