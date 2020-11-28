@@ -107,7 +107,7 @@ export class AccountsService {
             You have successfully registered\n
             Your User Id: ${user.id}\n
             Your Password: ${password}\n
-            Please visit: http://app.ipl.com/`,
+            Please visit: http://ipl-app.s3-website.us-east-2.amazonaws.com/`,
       `${mobile}`,
       'ipl',
     );
