@@ -18,19 +18,27 @@ import { AccountProcessor } from './accounts.processor';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('SECRET'),
-        signOptions: {expiresIn: '10000s'}
-      })
+        signOptions: { expiresIn: '10000s' },
+      }),
     }),
-    BullModule.registerQueue({
+    BullModule.registerQueueAsync({
       name: 'account',
-      redis: {
-        host: process.env.REDIS_HOST,
-        port: parseInt(process.env.REDIS_PORT),
-      },
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        name: 'account',
+        redis: configService.get('REDIS_URL'),
+      }),
     }),
   ],
   controllers: [AccountsController],
-  providers: [AccountsService, JwtAuthGuard, JwtStrategy, AWSHandler, AccountProcessor],
-  exports: [AccountsService]
+  providers: [
+    AccountsService,
+    JwtAuthGuard,
+    JwtStrategy,
+    AWSHandler,
+    AccountProcessor,
+  ],
+  exports: [AccountsService],
 })
-export class AccountsModule { }
+export class AccountsModule {}
