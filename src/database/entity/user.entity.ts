@@ -11,6 +11,7 @@ import {
   JoinTable,
   EntityManager,
   UpdateResult,
+  MoreThan,
 } from 'typeorm';
 import { BankDetails, UserRO, MemberRO } from 'src/interfaces';
 import * as bcrypct from 'bcryptjs';
@@ -155,21 +156,26 @@ export class User extends Base {
       .getManyAndCount();
   }
 
-  public static async getDownline(
-    root: User,
-    downline: { member: User; level: number }[] = [],
-    level: number = 1,
-  ) {
+  public static async getDownline(owner: User) {
     const members = await this.find({
-      where: { sponsoredBy: root },
-      order: { createdAt: 'DESC' },
+      where: { createdAt: MoreThan<Date>(owner.createdAt) },
+      relations: ['sponsoredBy'],
     });
 
-    for (let member of members) {
-      downline.push({ member, level });
-      await this.getDownline(member, downline, level + 1);
-    }
-    return downline;
+    const search = (
+      root: User,
+      downline: { member: User; level: number }[] = [],
+      level: number = 1,
+    ) => {
+      const directs = members.filter(m => m.sponsoredBy.id === root.id);
+      for (let member of directs) {
+        downline.push({ member, level });
+        search(member, downline, level + 1);
+      }
+      return downline;
+    };
+
+    return search(owner);
   }
 
   public static async creditBalance(
