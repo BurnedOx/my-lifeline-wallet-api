@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { User } from 'src/database/entity/user.entity';
 import { getManager } from 'typeorm';
 import {
@@ -22,6 +18,8 @@ import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AWSHandler } from 'src/common/aws/aws';
 import { Transaction } from 'src/database/entity/transaction.entity';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 type UserFilter = {
   status?: 'active' | 'inactive' | 'all';
@@ -33,7 +31,12 @@ type UserFilter = {
 
 @Injectable()
 export class AccountsService {
+  private readonly logger = new Logger(AccountsService.name);
+
   constructor(
+    @InjectQueue('account')
+    private readonly accountQueue: Queue,
+
     private readonly incomeService: IncomeService,
 
     private readonly jwtService: JwtService,
@@ -52,7 +55,10 @@ export class AccountsService {
   }
 
   async getAll(filter: UserFilter) {
-    let users = await User.find({ relations: ['sponsoredBy', 'epin'], order: {createdAt: 'DESC'} });
+    let users = await User.find({
+      relations: ['sponsoredBy', 'epin'],
+      order: { createdAt: 'DESC' },
+    });
     if (filter.status && filter.status !== 'all') {
       users = users.filter(u => u.status === filter.status);
     }
@@ -183,13 +189,16 @@ export class AccountsService {
       throw new HttpException('User already activated', HttpStatus.BAD_REQUEST);
     }
 
-    await getManager().transaction(async trx => {
-      user.epin = epin;
-      user.status = 'active';
-      user.activatedAt = new Date();
-      await trx.save(user);
-      await this.incomeService.generateIncomes(user, trx);
-    });
+    user.epin = epin;
+    user.status = 'active';
+    user.activatedAt = new Date();
+    await User.save(user);
+
+    try {
+      await this.accountQueue.add('distribution', { userId: user.id });
+    } catch (e) {
+      this.logger.error(`Error queueing distribution for id ${user.id}`);
+    }
 
     return user.toResponseObject();
   }
@@ -267,7 +276,7 @@ export class AccountsService {
       user.sponsoredBy = sponsor;
       await trx.save(user);
       await this.incomeService.removePayments(user.generatedIncomes, trx);
-      await this.incomeService.generateIncomes(user, trx);
+      await this.incomeService.generateIncomes(user.id);
     });
 
     return user.toResponseObject();

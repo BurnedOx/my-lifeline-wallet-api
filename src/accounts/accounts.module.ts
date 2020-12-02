@@ -7,6 +7,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { JwtStrategy } from 'src/common/guards/jwt.strategy';
 import { AWSHandler } from 'src/common/aws/aws';
+import { BullModule } from '@nestjs/bull';
+import { AccountProcessor } from './accounts.processor';
 
 @Module({
   imports: [
@@ -18,10 +20,17 @@ import { AWSHandler } from 'src/common/aws/aws';
         secret: configService.get('SECRET'),
         signOptions: {expiresIn: '10000s'}
       })
-    })
+    }),
+    BullModule.registerQueue({
+      name: 'account',
+      redis: {
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT),
+      },
+    }),
   ],
   controllers: [AccountsController],
-  providers: [AccountsService, JwtAuthGuard, JwtStrategy, AWSHandler],
+  providers: [AccountsService, JwtAuthGuard, JwtStrategy, AWSHandler, AccountProcessor],
   exports: [AccountsService]
 })
 export class AccountsModule { }
