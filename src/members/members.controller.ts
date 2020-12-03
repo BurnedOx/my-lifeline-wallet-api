@@ -36,9 +36,9 @@ export class MembersController {
     return this.membersService.directMembers(id);
   }
 
-  @Get('downline')
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
+  @Get('downline')
   async downlineMembers(
     @CustomHeader() headers: HeaderDTO,
     @Query() query: PagingQuery,
@@ -49,24 +49,24 @@ export class MembersController {
     );
 
     return new PagingResponse('members', downline, {
-      limit: query.l,
-      offset: query.o,
+      limit: query.limit,
+      offset: query.offset,
       total,
     });
   }
 
-  @Get(':id/downline')
   @hasRoles('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe())
+  @Get(':id/downline')
   async adminGetDownline(@Param('id') id: string, @Query() query: PagingQuery) {
     const [downline, total] = await this.membersService.downlineMembers(
       id,
       query,
     );
     return new PagingResponse('members', downline, {
-      limit: query.l,
-      offset: query.o,
+      limit: query.limit,
+      offset: query.offset,
       total,
     });
   }

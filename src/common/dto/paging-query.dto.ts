@@ -1,18 +1,12 @@
 import {Type} from "class-transformer";
-import {IsString} from "class-validator";
+import {IsNumber} from "class-validator";
 
 export class PagingQuery {
-    @IsString()
-    limit: string;
+    @IsNumber()
+    @Type(() => Number)
+    limit: number = 10;
 
-    @IsString()
-    offset: string;
-
-    public get l() {
-        return this.limit ? parseInt(this.limit) : 10;
-    }
-
-    public get o() {
-        return this.offset ? parseInt(this.offset) : 0;
-    }
+    @IsNumber()
+    @Type(() => Number)
+    offset: number = 0;
 }
