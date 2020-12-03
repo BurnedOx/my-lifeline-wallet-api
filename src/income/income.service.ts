@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Income } from 'src/database/entity/income.entity';
 import { Repository, EntityManager, getManager } from 'typeorm';
@@ -8,6 +8,8 @@ import { Transaction } from 'src/database/entity/transaction.entity';
 
 @Injectable()
 export class IncomeService {
+  private readonly logging = new Logger(IncomeService.name);
+
   async getIncomes(userId: string) {
     const user = await User.findOne(userId);
     if (!user) {
@@ -36,38 +38,43 @@ export class IncomeService {
   }
 
   async generateIncomes(userId: string) {
-    const from = await User.findOne(userId, {relations: ["sponsoredBy"]});
-    await getManager().transaction(async trx => {
-      if (from.status === 'inactive') return;
-      let level: number = 1;
-      let sponsor = await trx.findOne(User, from.sponsoredBy.id, {
-        relations: ['sponsoredBy'],
-      });
-      while (level <= 7 && sponsor.role === 'user') {
-        const amount = levelIncomeAmount[level];
-        sponsor.balance = sponsor.balance + amount;
-        await trx.save(sponsor);
-        const income = Income.create({
-          owner: sponsor,
-          currentBalance: sponsor.balance,
-          level,
-          from,
-          amount,
-        });
-        await trx.save(income);
-        const transaction = Transaction.create({
-          currentBalance: sponsor.balance,
-          type: 'credit',
-          remarks: `From level ${level} income`,
-          owner: sponsor,
-          amount,
-        });
-        await trx.save(transaction);
-        sponsor = await trx.findOne(User, sponsor.sponsoredBy.id, {
+    try {
+      const from = await User.findOne(userId, { relations: ['sponsoredBy'] });
+      await getManager().transaction(async trx => {
+        if (from.status === 'inactive') return;
+        let level: number = 1;
+        let sponsor = await trx.findOne(User, from.sponsoredBy.id, {
           relations: ['sponsoredBy'],
         });
-        level++;
-      }
-    });
+        while (level <= 7 && sponsor.role === 'user') {
+          const amount = levelIncomeAmount[level];
+          sponsor.balance = sponsor.balance + amount;
+          await trx.save(sponsor);
+          const income = Income.create({
+            owner: sponsor,
+            currentBalance: sponsor.balance,
+            level,
+            from,
+            amount,
+          });
+          await trx.save(income);
+          const transaction = Transaction.create({
+            currentBalance: sponsor.balance,
+            type: 'credit',
+            remarks: `From level ${level} income`,
+            owner: sponsor,
+            amount,
+          });
+          await trx.save(transaction);
+          sponsor = await trx.findOne(User, sponsor.sponsoredBy.id, {
+            relations: ['sponsoredBy'],
+          });
+          level++;
+        }
+      });
+      this.logging.log('Distribution Successful');
+    } catch (e) {
+      this.logging.error('Distribution Unsuccessful', e);
+    }
   }
 }
