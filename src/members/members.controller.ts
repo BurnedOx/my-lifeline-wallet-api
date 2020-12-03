@@ -42,10 +42,12 @@ export class MembersController {
   async downlineMembers(
     @CustomHeader() headers: HeaderDTO,
     @Query() query: PagingQuery,
+    @Query('status') status?: 'active' | 'inactive',
   ) {
     const [downline, total] = await this.membersService.downlineMembers(
       headers.userId,
       query,
+      status,
     );
 
     return new PagingResponse('members', downline, {

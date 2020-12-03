@@ -19,11 +19,15 @@ export class MembersService {
   async downlineMembers(
     userId: string,
     query: PagingQuery,
+    status?: 'active' | 'inactive',
   ): Promise<[MemberRO[], number]> {
     const user = await this.checkUser(userId);
-    const downline = (await User.getDownline(user)).map(({ member, level }) =>
+    let downline = (await User.getDownline(user)).map(({ member, level }) =>
       member.toMemberObject(level),
     );
+    if (status) {
+      downline = downline.filter(m => m.status === status);
+    }
     const offset = parseInt(`${query.offset}`);
     const limit = parseInt(`${query.limit}`);
     return [
