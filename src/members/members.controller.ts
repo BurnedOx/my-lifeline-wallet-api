@@ -49,8 +49,8 @@ export class MembersController {
     );
 
     return new PagingResponse('members', downline, {
-      limit: query.limit,
-      offset: query.offset,
+      limit: query.l,
+      offset: query.o,
       total,
     });
   }
@@ -65,8 +65,8 @@ export class MembersController {
       query,
     );
     return new PagingResponse('members', downline, {
-      limit: query.limit,
-      offset: query.offset,
+      limit: query.l,
+      offset: query.o,
       total,
     });
   }

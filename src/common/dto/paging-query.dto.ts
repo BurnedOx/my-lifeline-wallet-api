@@ -3,11 +3,16 @@ import {IsNumber} from "class-validator";
 
 export class PagingQuery {
     @IsNumber()
-    @Type(() => Number)
-    limit: number = 10;
+    limit: string;
 
     @IsNumber()
-    @Type(() => Number)
-    offset: number = 0;
+    offset: string;
 
+    public get l() {
+        return this.limit ? parseInt(this.limit) : 10;
+    }
+
+    public get o() {
+        return this.offset ? parseInt(this.offset) : 0;
+    }
 }

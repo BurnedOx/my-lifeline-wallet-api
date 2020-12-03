@@ -25,7 +25,7 @@ export class MembersService {
       member.toMemberObject(level),
     );
     return [
-      downline.slice(query.offset, query.offset + query.limit),
+      downline.slice(query.o, query.o + query.l),
       downline.length,
     ];
   }
