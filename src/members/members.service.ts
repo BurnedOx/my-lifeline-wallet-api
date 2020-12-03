@@ -24,8 +24,10 @@ export class MembersService {
     const downline = (await User.getDownline(user)).map(({ member, level }) =>
       member.toMemberObject(level),
     );
+    const offset = parseInt(`${query.offset}`);
+    const limit = parseInt(`${query.limit}`);
     return [
-      downline.slice(query.offset, query.offset + query.limit),
+      downline.slice(offset, offset + limit),
       downline.length,
     ];
   }

@@ -12,8 +12,8 @@ export class PagingResponse {
   ) {
     this[key] = {
       items: value,
-      limit: params.limit,
-      offset: params.offset,
+      limit: parseInt(`${params.limit}`),
+      offset: parseInt(`${params.offset}`),
       total: params.total,
     };
   }
