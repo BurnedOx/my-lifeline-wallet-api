@@ -7,13 +7,15 @@ import { Repository, Not, IsNull, getManager } from 'typeorm';
 
 @Injectable()
 export class MembersService {
-  async directMembers(userId: string) {
+  async directMembers(userId: string, query: PagingQueryDTO): Promise<[MemberRO[], number]> {
     const user = await this.checkUser(userId);
     const members = await User.find({
       where: { sponsoredBy: user },
       order: { createdAt: 'DESC' },
+      take: query.limit,
+      skip: query.offset,
     });
-    return members.map(member => member.toMemberObject(1));
+    return [members.map(member => member.toMemberObject(1)), members.length];
   }
 
   async downlineMembers(

@@ -3,7 +3,6 @@ import {
   Get,
   UseGuards,
   UsePipes,
-  Put,
   Param,
   Query,
   UseInterceptors,
@@ -18,7 +17,6 @@ import { RolesGuard } from '@common/guards/roles.guard';
 import { hasRoles } from '@common/decorators/roles-decorator';
 import { PagingQueryDTO } from '@common/dto/paging-query.dto';
 import { PagingResponse } from '@common/dto/paginated-response.dto';
-import { plainToClass } from 'class-transformer';
 import { PagingQuery } from '@common/decorators/common-query-decorator';
 
 @UseInterceptors(ClassSerializerInterceptor)
@@ -29,16 +27,32 @@ export class MembersController {
   @Get('direct')
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
-  directMembers(@CustomHeader() headers: HeaderDTO) {
-    return this.membersService.directMembers(headers.userId);
+  async directMembers(
+    @CustomHeader() headers: HeaderDTO,
+    @PagingQuery() query: PagingQueryDTO,
+  ): Promise<PagingResponse> {
+    const [direct, total] = await this.membersService.directMembers(headers.userId, query);
+    return new PagingResponse('members', direct, {
+      limit: query.limit,
+      offset: query.offset,
+      total,
+    });
   }
 
   @Get(':id/direct')
   @hasRoles('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe())
-  adminGetDirect(@Param('id') id: string) {
-    return this.membersService.directMembers(id);
+  async adminGetDirect(
+    @Param('id') id: string,
+    @PagingQuery() query: PagingQueryDTO,
+  ) {
+    const [direct, total] = await this.membersService.directMembers(id, query);
+    return new PagingResponse('members', direct, {
+      limit: query.limit,
+      offset: query.offset,
+      total,
+    });
   }
 
   @Get('downline')
@@ -66,7 +80,10 @@ export class MembersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe())
   @Get(':id/downline')
-  async adminGetDownline(@Param('id') id: string, @PagingQuery() query: PagingQueryDTO) {
+  async adminGetDownline(
+    @Param('id') id: string,
+    @PagingQuery() query: PagingQueryDTO,
+  ) {
     const [downline, total] = await this.membersService.downlineMembers(
       id,
       query,

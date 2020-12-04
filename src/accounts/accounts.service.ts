@@ -12,7 +12,7 @@ import {
 import { EPin } from 'src/database/entity/epin.entity';
 import { IncomeService } from 'src/income/income.service';
 import * as bcrypct from 'bcryptjs';
-import { UserDetailsRO, UserRO } from 'src/interfaces';
+import { UserDetailsRO, UserFilter, UserRO } from 'src/interfaces';
 import { JwtService } from '@nestjs/jwt';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -20,14 +20,7 @@ import { AWSHandler } from 'src/common/aws/aws';
 import { Transaction } from 'src/database/entity/transaction.entity';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-
-type UserFilter = {
-  status?: 'active' | 'inactive' | 'all';
-  wallet?: {
-    min: number;
-    max: number;
-  };
-};
+import { PagingQueryDTO } from '@common/dto/paging-query.dto';
 
 @Injectable()
 export class AccountsService {
@@ -54,20 +47,12 @@ export class AccountsService {
     return this.findOne(id).pipe(map(user => user?.name ?? 'not found'));
   }
 
-  async getAll(filter: UserFilter) {
-    let users = await User.find({
-      relations: ['sponsoredBy', 'epin'],
-      order: { createdAt: 'DESC' },
-    });
-    if (filter.status && filter.status !== 'all') {
-      users = users.filter(u => u.status === filter.status);
-    }
-    if (filter.wallet) {
-      const { min, max } = filter.wallet;
-      if (min < max)
-        users = users.filter(u => u.balance >= min && u.balance <= max);
-    }
-    return users.map(user => user.toResponseObject());
+  async getAll(
+    filter: UserFilter,
+    query: PagingQueryDTO,
+  ): Promise<[UserRO[], number]> {
+    const [users, total] = await User.findAll(filter, query);
+    return [users.map(user => user.toResponseObject()), total];
   }
 
   async login(data: LoginDTO, admin: boolean = false) {

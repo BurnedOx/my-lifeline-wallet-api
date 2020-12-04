@@ -13,7 +13,7 @@ import {
   UpdateResult,
   MoreThan,
 } from 'typeorm';
-import { BankDetails, UserRO, MemberRO } from 'src/interfaces';
+import { BankDetails, UserRO, MemberRO, UserFilter } from 'src/interfaces';
 import * as bcrypct from 'bcryptjs';
 import { EPin } from './epin.entity';
 import { Income } from './income.entity';
@@ -23,6 +23,7 @@ import { from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { UserEpin } from './userEpin.entity';
 import { EpinHistory } from './epinHistory.entity';
+import { PagingQueryDTO } from '@common/dto/paging-query.dto';
 
 @Entity()
 export class User extends Base {
@@ -121,6 +122,30 @@ export class User extends Base {
 
   public static findById(id: string) {
     return from(this.findOne({ id })).pipe(map((user: User) => user));
+  }
+
+  public static findAll(filter: UserFilter, pagingQuery: PagingQueryDTO) {
+    const query = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.sponsoredBy', 'sponsoredBy')
+      .leftJoinAndSelect('user.epin', 'epin');
+
+    if (filter.status && filter.status !== 'all') {
+      query.where('user.status = :status', { status: filter.status });
+    }
+
+    if (filter.wallet) {
+      const { min, max } = filter.wallet;
+      if (min < max)
+        query
+          .andWhere('user.balance >= :min', { min })
+          .andWhere('user.balance <= :max', { max });
+    }
+
+    return query
+      .orderBy('user.createdAt', 'DESC')
+      .limit(pagingQuery.limit)
+      .offset(pagingQuery.offset)
+      .getManyAndCount();
   }
 
   public static findByActivationDate(startDate: Date, endDate: Date) {

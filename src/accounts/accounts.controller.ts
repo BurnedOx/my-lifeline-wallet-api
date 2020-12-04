@@ -26,6 +26,9 @@ import { HeaderDTO } from 'src/common/dto/base-header.dto';
 import { CustomHeader } from 'src/common/decorators/common-header-decorator';
 import { hasRoles } from 'src/common/decorators/roles-decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
+import { PagingQuery } from '@common/decorators/common-query-decorator';
+import { PagingQueryDTO } from '@common/dto/paging-query.dto';
+import { PagingResponse } from '@common/dto/paginated-response.dto';
 
 @Controller('accounts')
 export class AccountsController {
@@ -34,10 +37,11 @@ export class AccountsController {
   @Get('users')
   @hasRoles('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  getAllUsers(
+  async getAllUsers(
+    @PagingQuery() query: PagingQueryDTO,
     @Query('status') status?: 'active' | 'inactive' | 'all',
     @Query('wallet') walletStr?: string,
-  ) {
+  ): Promise<PagingResponse> {
     let [min, max] = walletStr?.split(',')?.map(val => parseInt(val)) ?? [
       undefined,
       undefined,
@@ -46,7 +50,15 @@ export class AccountsController {
     if (min !== undefined && max !== undefined) {
       wallet = { min, max };
     }
-    return this.accountsService.getAll({ status, wallet });
+    const [members, total] = await this.accountsService.getAll(
+      { status, wallet },
+      query,
+    );
+    return new PagingResponse('accounts', members, {
+      limit: query.limit,
+      offset: query.offset,
+      total,
+    });
   }
 
   @Get('users/:id')
