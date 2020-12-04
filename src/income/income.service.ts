@@ -5,12 +5,17 @@ import { Repository, EntityManager, getManager } from 'typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { levelIncomeAmount } from 'src/common/costraints';
 import { Transaction } from 'src/database/entity/transaction.entity';
+import { PagingQueryDTO } from '@common/dto/paging-query.dto';
+import { IncomeRO } from 'src/interfaces';
 
 @Injectable()
 export class IncomeService {
   private readonly logging = new Logger(IncomeService.name);
 
-  async getIncomes(userId: string) {
+  async getIncomes(
+    userId: string,
+    query: PagingQueryDTO,
+  ): Promise<[IncomeRO[], number]> {
     const user = await User.findOne(userId);
     if (!user) {
       throw new HttpException('user not found', HttpStatus.NOT_FOUND);
@@ -18,8 +23,11 @@ export class IncomeService {
     const incomes = await Income.find({
       where: { owner: user },
       relations: ['owner', 'from'],
+      order: { createdAt: 'DESC' },
+      take: query.limit,
+      skip: query.offset,
     });
-    return incomes.map(i => i.toResponseObject());
+    return [incomes.map(i => i.toResponseObject()), incomes.length];
   }
 
   async removePayments(incomes: Income[], trx: EntityManager) {
