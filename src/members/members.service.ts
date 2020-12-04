@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PagingQuery } from 'src/common/dto/paging-query.dto';
+import { PagingQueryDTO } from 'src/common/dto/paging-query.dto';
 import { User } from 'src/database/entity/user.entity';
 import { MemberRO } from 'src/interfaces';
 import { Repository, Not, IsNull, getManager } from 'typeorm';
@@ -18,7 +18,7 @@ export class MembersService {
 
   async downlineMembers(
     userId: string,
-    query: PagingQuery,
+    query: PagingQueryDTO,
     status?: 'active' | 'inactive',
   ): Promise<[MemberRO[], number]> {
     const user = await this.checkUser(userId);
@@ -28,10 +28,8 @@ export class MembersService {
     if (status) {
       downline = downline.filter(m => m.status === status);
     }
-    const offset = parseInt(`${query.offset}`);
-    const limit = parseInt(`${query.limit}`);
     return [
-      downline.slice(offset, offset + limit),
+      downline.slice(query.offset, query.offset + query.limit),
       downline.length,
     ];
   }
