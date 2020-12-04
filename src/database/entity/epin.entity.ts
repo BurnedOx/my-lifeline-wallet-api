@@ -5,6 +5,7 @@ import { EpinRO } from "src/interfaces";
 import { UserEpin } from "./userEpin.entity";
 import { EpinHistory } from "./epinHistory.entity";
 import { Expose } from "class-transformer";
+import { PagingQueryDTO } from "@common/dto/paging-query.dto";
 
 @Entity()
 export class EPin extends Base {
@@ -17,31 +18,37 @@ export class EPin extends Base {
     @OneToMany(() => EpinHistory, epinHistory => epinHistory.epin)
     history: EpinHistory[];
 
-    public static getAll() {
+    public static getAll(query: PagingQueryDTO) {
         return this.createQueryBuilder("epin")
             .leftJoinAndSelect("epin.owner", "owner")
             .leftJoinAndSelect("epin.purchasedby", "purchasedby")
             .orderBy("epin.createdAt", "DESC")
+            .limit(query.limit)
+            .offset(query.offset)
             .getMany();
     }
 
-    public static getUsed() {
+    public static getUsed(query: PagingQueryDTO) {
         return this.createQueryBuilder("epin")
             .leftJoinAndSelect("epin.owner", "owner")
             .leftJoinAndSelect("epin.purchasedby", "purchasedby")
             .where("owner IS NOT NULL")
             .orWhere("purchasedby IS NOT NULL")
             .orderBy("epin.createdAt", "DESC")
+            .limit(query.limit)
+            .offset(query.offset)
             .getMany();
     }
 
-    public static getUnused() {
+    public static getUnused(query: PagingQueryDTO) {
         return this.createQueryBuilder("epin")
             .leftJoinAndSelect("epin.owner", "owner")
             .leftJoinAndSelect("epin.purchasedby", "purchasedby")
             .where("owner IS NULL")
             .andWhere("purchasedby IS NULL")
             .orderBy("epin.createdAt", "DESC")
+            .limit(query.limit)
+            .offset(query.offset)
             .getMany();
     }
 
