@@ -1,3 +1,4 @@
+import { PagingQueryDTO } from '@common/dto/paging-query.dto';
 import { EPinHistoryRO } from 'src/interfaces';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Base } from './base.entity';
@@ -25,20 +26,26 @@ export class EpinHistory extends Base {
   @Column('text')
   remark: string;
 
-  public static getByUserId(userId: string) {
+  public static getByUserId(userId: string, query: PagingQueryDTO) {
     return this.createQueryBuilder('history')
       .leftJoinAndSelect('history.epin', 'epin')
       .leftJoin('history.owner', 'owner')
       .where('owner.id = :ownerId', { ownerId: userId })
-      .getMany();
+      .orderBy('history.createdAt', 'DESC')
+      .limit(query.limit)
+      .offset(query.offset)
+      .getManyAndCount();
   }
 
-  public static getAdminHistory() {
+  public static getAdminHistory(query: PagingQueryDTO) {
     return this.createQueryBuilder('history')
       .leftJoinAndSelect('history.epin', 'epin')
       .leftJoin('history.owner', 'owner')
       .where("owner.role = 'admin'")
-      .getMany();
+      .orderBy('history.createdAt', 'DESC')
+      .limit(query.limit)
+      .offset(query.offset)
+      .getManyAndCount();
   }
 
   public static findPurchasedByDate(startDate: Date, endDate: Date) {
