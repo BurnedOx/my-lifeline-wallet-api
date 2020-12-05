@@ -85,11 +85,11 @@ export class AccountsController {
     return this.accountsService.login(data, true);
   }
 
-  @Post('register')
-  @UsePipes(new ValidationPipe())
-  register(@Body() data: RegistrationDTO) {
-    return this.accountsService.register(data);
-  }
+  // @Post('register')
+  // @UsePipes(new ValidationPipe())
+  // register(@Body() data: RegistrationDTO) {
+  //   return this.accountsService.register(data);
+  // }
 
   @Post('login')
   @UsePipes(new ValidationPipe())
