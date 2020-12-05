@@ -107,7 +107,7 @@ export class UserEpinService {
 
   async sendFromAdmin(data: SendEPinDTO) {
     const { sendTo, total } = data;
-    const epins = await EPin.getUnused();
+    const epins = (await EPin.getUnused())[0];
 
     if (epins.length < total) {
       throw new HttpException('Not enough epin', HttpStatus.NOT_ACCEPTABLE);

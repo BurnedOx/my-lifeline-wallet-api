@@ -39,7 +39,7 @@ export class EPin extends Base {
       q = q.limit(query.limit).offset(query.offset);
     }
 
-    return q.getMany();
+    return q.getManyAndCount();
   }
 
   public static getUsed(query?: PagingQueryDTO) {
@@ -54,7 +54,7 @@ export class EPin extends Base {
       q = q.limit(query.limit).offset(query.offset);
     }
 
-    return q.getMany();
+    return q.getManyAndCount();
   }
 
   public static getUnused(query?: PagingQueryDTO) {
@@ -69,7 +69,7 @@ export class EPin extends Base {
       q = q.limit(query.limit).offset(query.offset);
     }
 
-    return q.getMany();
+    return q.getManyAndCount();
   }
 
   toResponseObject(): EpinRO {

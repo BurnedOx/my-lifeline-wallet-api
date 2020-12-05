@@ -181,6 +181,24 @@ export class User extends Base {
       .getManyAndCount();
   }
 
+  public static getDirect(
+    userId: string,
+    query: PagingQueryDTO,
+    status?: 'active' | 'inactive',
+  ) {
+    let q = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.sponsoredBy', 'sponsoredBy')
+      .where('sponsoredBy.id = :userId', { userId });
+
+    if (status) {
+      q = q.andWhere('user.status = :status', { status });
+    }
+
+    q = q.limit(query.limit).offset(query.offset);
+
+    return q.getManyAndCount();
+  }
+
   public static async getDownline(owner: User) {
     const members = await this.find({
       where: { createdAt: MoreThan<Date>(owner.createdAt) },

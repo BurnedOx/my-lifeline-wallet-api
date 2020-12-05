@@ -24,13 +24,13 @@ export class TransactionService {
     if (!owner) {
       throw new HttpException('user not found', HttpStatus.NOT_FOUND);
     }
-    const trx = await this.trxRepo.find({
+    const [trx, total] = await this.trxRepo.findAndCount({
       where: { owner },
       order: { createdAt: 'DESC' },
       take: query.limit,
       skip: query.offset,
     });
 
-    return [trx.map(t => t.responseObj), trx.length];
+    return [trx.map(t => t.responseObj), total];
   }
 }

@@ -20,16 +20,16 @@ export class EpinService {
     query: PagingQueryDTO,
     status?: 'used' | 'unused',
   ): Promise<[EpinRO[], number]> {
-    let epins: EPin[];
+    let epins: EPin[], total: number;
 
     if (status === 'used') {
-      epins = await EPin.getUsed(query);
+      [epins, total] = await EPin.getUsed(query);
     } else if (status === 'unused') {
-      epins = await EPin.getUnused(query);
+      [epins, total] = await EPin.getUnused(query);
     } else {
-      epins = await EPin.getAll(query);
+      [epins, total] = await EPin.getAll(query);
     }
-    return [epins.map(e => e.toResponseObject()), epins.length];
+    return [epins.map(e => e.toResponseObject()), total];
   }
 
   async getEpin(userId: string) {

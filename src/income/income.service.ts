@@ -20,14 +20,14 @@ export class IncomeService {
     if (!user) {
       throw new HttpException('user not found', HttpStatus.NOT_FOUND);
     }
-    const incomes = await Income.find({
+    const [incomes, total] = await Income.findAndCount({
       where: { owner: user },
       relations: ['owner', 'from'],
       order: { createdAt: 'DESC' },
       take: query.limit,
       skip: query.offset,
     });
-    return [incomes.map(i => i.toResponseObject()), incomes.length];
+    return [incomes.map(i => i.toResponseObject()), total];
   }
 
   async removePayments(incomes: Income[], trx: EntityManager) {
