@@ -6,24 +6,48 @@ import { HeaderDTO } from 'src/common/dto/base-header.dto';
 import { CustomHeader } from 'src/common/decorators/common-header-decorator';
 import { hasRoles } from 'src/common/decorators/roles-decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
+import { PagingQuery } from '@common/decorators/common-query-decorator';
+import { PagingQueryDTO } from '@common/dto/paging-query.dto';
+import { PagingResponse } from '@common/dto/paginated-response.dto';
 
 @Controller('transaction')
 export class TransactionController {
+  constructor(private readonly transactionService: TransactionService) {}
 
-    constructor (private readonly transactionService: TransactionService) {}
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(new ValidationPipe())
+  async getMyTransactions(
+    @CustomHeader() headers: HeaderDTO,
+    @PagingQuery() query: PagingQueryDTO,
+  ): Promise<PagingResponse> {
+    const [trx, total] = await this.transactionService.getUserTransactions(
+      headers.userId,
+      query,
+    );
+    return new PagingResponse('transactions', trx, {
+      limit: query.limit,
+      offset: query.offset,
+      total,
+    });
+  }
 
-    @Get()
-    @UseGuards(JwtAuthGuard)
-    @UsePipes(new ValidationPipe())
-    getMyTransactions(@CustomHeader() headers: HeaderDTO) {
-        return this.transactionService.getUserTransactions(headers.userId);
-    }
-
-    @Get(':id')
-    @hasRoles('admin')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @UsePipes(new ValidationPipe())
-    getTransactionsById(@Param('id') id: string) {
-        return this.transactionService.getUserTransactions(id);
-    }
+  @Get(':id')
+  @hasRoles('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(new ValidationPipe())
+  async getTransactionsById(
+    @Param('id') id: string,
+    @PagingQuery() query: PagingQueryDTO,
+  ): Promise<PagingResponse> {
+    const [trx, total] = await this.transactionService.getUserTransactions(
+      id,
+      query,
+    );
+    return new PagingResponse('transactions', trx, {
+      limit: query.limit,
+      offset: query.offset,
+      total,
+    });
+  }
 }
