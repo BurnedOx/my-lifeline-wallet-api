@@ -12,6 +12,8 @@ import {
   EntityManager,
   UpdateResult,
   MoreThan,
+  Brackets,
+  SelectQueryBuilder,
 } from 'typeorm';
 import { BankDetails, UserRO, MemberRO, UserFilter } from 'src/interfaces';
 import * as bcrypct from 'bcryptjs';
@@ -124,13 +126,23 @@ export class User extends Base {
     return from(this.findOne({ id })).pipe(map((user: User) => user));
   }
 
-  public static findAll(filter: UserFilter, pagingQuery: PagingQueryDTO) {
+  public static findAll(
+    filter: UserFilter,
+    pagingQuery: PagingQueryDTO,
+    search?: string,
+  ) {
     let query = this.createQueryBuilder('user')
       .leftJoinAndSelect('user.sponsoredBy', 'sponsoredBy')
       .leftJoinAndSelect('user.epin', 'epin');
 
+    if (search && search.trim() !== '') {
+      query = this.searchQuery(query, search);
+    }
+
     if (filter.status && filter.status !== 'all') {
-      query = query.where('user.status = :status', { status: filter.status });
+      query = query.andWhere('user.status = :status', {
+        status: filter.status,
+      });
     }
 
     if (filter.wallet) {
@@ -185,10 +197,18 @@ export class User extends Base {
     userId: string,
     query: PagingQueryDTO,
     status?: 'active' | 'inactive',
+    search?: string,
   ) {
-    let q = this.createQueryBuilder('user')
-      .leftJoinAndSelect('user.sponsoredBy', 'sponsoredBy')
-      .where('sponsoredBy.id = :userId', { userId });
+    let q = this.createQueryBuilder('user').leftJoinAndSelect(
+      'user.sponsoredBy',
+      'sponsoredBy',
+    );
+
+    if (search && search.trim() !== '') {
+      q = this.searchQuery(q, search);
+    }
+
+    q = q.andWhere('sponsoredBy.id = :userId', { userId });
 
     if (status) {
       q = q.andWhere('user.status = :status', { status });
@@ -199,13 +219,18 @@ export class User extends Base {
     return q.getManyAndCount();
   }
 
-  public static async getDownline(owner: User) {
-    const members = await this.find({
-      where: { createdAt: MoreThan<Date>(owner.createdAt) },
-      relations: ['sponsoredBy'],
-    });
+  public static async getDownline(owner: User, status?: 'active' | 'inactive') {
+    let query = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.sponsoredBy', 'sponsoredBy')
+      .where('user.createdAt > :date', { date: owner.createdAt });
 
-    const search = (
+    if (status) {
+      query = query.andWhere('user.status = :status', { status });
+    }
+
+    const members = await query.getMany();
+
+    const build = (
       root: User,
       downline: { member: User; level: number }[] = [],
       level: number = 1,
@@ -213,12 +238,12 @@ export class User extends Base {
       const directs = members.filter(m => m.sponsoredBy.id === root.id);
       for (let member of directs) {
         downline.push({ member, level });
-        search(member, downline, level + 1);
+        build(member, downline, level + 1);
       }
       return downline;
     };
 
-    return search(owner);
+    return build(owner);
   }
 
   public static async creditBalance(
@@ -297,5 +322,17 @@ export class User extends Base {
 
   async comparePassword(attempt: string) {
     return await bcrypct.compare(attempt, this.password);
+  }
+
+  private static searchQuery(query: SelectQueryBuilder<User>, search: string) {
+    return query.where(
+      new Brackets(qb => {
+        qb.where('user.id = :search', {
+          search: search.trim(),
+        }).orWhere('LOWER(user.name) LIKE :name', {
+          name: `%${search.toLocaleLowerCase().trim()}%`,
+        });
+      }),
+    );
   }
 }

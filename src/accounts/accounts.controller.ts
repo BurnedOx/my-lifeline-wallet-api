@@ -41,7 +41,8 @@ export class AccountsController {
     @PagingQuery() query: PagingQueryDTO,
     @Query('status') status?: 'active' | 'inactive' | 'all',
     @Query('wallet') walletStr?: string,
-  ): Promise<PagingResponse> {
+    @Query('search') search?: string,
+    ): Promise<PagingResponse> {
     let [min, max] = walletStr?.split(',')?.map(val => parseInt(val)) ?? [
       undefined,
       undefined,
@@ -53,6 +54,7 @@ export class AccountsController {
     const [members, total] = await this.accountsService.getAll(
       { status, wallet },
       query,
+      search,
     );
     return new PagingResponse('accounts', members, {
       limit: query.limit,

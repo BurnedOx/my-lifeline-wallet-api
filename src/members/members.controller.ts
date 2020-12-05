@@ -30,9 +30,10 @@ export class MembersController {
   async directMembers(
     @CustomHeader() headers: HeaderDTO,
     @PagingQuery() query: PagingQueryDTO,
-    @Query('status') status: 'active' | 'inactive',
+    @Query('status') status?: 'active' | 'inactive',
+    @Query('search') search?: string,
   ): Promise<PagingResponse> {
-    const [direct, total] = await this.membersService.directMembers(headers.userId, query, status);
+    const [direct, total] = await this.membersService.directMembers(headers.userId, query, status, search);
     return new PagingResponse('members', direct, {
       limit: query.limit,
       offset: query.offset,
@@ -48,8 +49,9 @@ export class MembersController {
     @Param('id') id: string,
     @PagingQuery() query: PagingQueryDTO,
     @Query('status') status?: 'active' | 'inactive',
+    @Query('search') search?: string,
   ) {
-    const [direct, total] = await this.membersService.directMembers(id, query, status);
+    const [direct, total] = await this.membersService.directMembers(id, query, status, search);
     return new PagingResponse('members', direct, {
       limit: query.limit,
       offset: query.offset,
@@ -64,11 +66,13 @@ export class MembersController {
     @CustomHeader() headers: HeaderDTO,
     @PagingQuery() query: PagingQueryDTO,
     @Query('status') status?: 'active' | 'inactive',
-  ): Promise<PagingResponse> {
+    @Query('search') search?: string,
+    ): Promise<PagingResponse> {
     const [downline, total] = await this.membersService.downlineMembers(
       headers.userId,
       query,
       status,
+      search
     );
 
     return new PagingResponse('members', downline, {
@@ -86,11 +90,13 @@ export class MembersController {
     @Param('id') id: string,
     @PagingQuery() query: PagingQueryDTO,
     @Query('status') status?: 'active' | 'inactive',
-  ) {
+    @Query('search') search?: string,
+    ) {
     const [downline, total] = await this.membersService.downlineMembers(
       id,
       query,
-      status
+      status,
+      search,
     );
     return new PagingResponse('members', downline, {
       limit: query.limit,

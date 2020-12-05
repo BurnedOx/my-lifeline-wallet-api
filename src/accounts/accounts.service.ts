@@ -50,8 +50,9 @@ export class AccountsService {
   async getAll(
     filter: UserFilter,
     query: PagingQueryDTO,
+    search?: string,
   ): Promise<[UserRO[], number]> {
-    const [users, total] = await User.findAll(filter, query);
+    const [users, total] = await User.findAll(filter, query, search);
     return [users.map(user => user.toResponseObject()), total];
   }
 

@@ -1,9 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { PagingQueryDTO } from 'src/common/dto/paging-query.dto';
 import { User } from 'src/database/entity/user.entity';
 import { MemberRO } from 'src/interfaces';
-import { Repository, Not, IsNull, getManager } from 'typeorm';
 
 @Injectable()
 export class MembersService {
@@ -11,8 +9,14 @@ export class MembersService {
     userId: string,
     query: PagingQueryDTO,
     status?: 'active' | 'inactive',
+    search?: string,
   ): Promise<[MemberRO[], number]> {
-    const [members, total] = await User.getDirect(userId, query, status);
+    const [members, total] = await User.getDirect(
+      userId,
+      query,
+      status,
+      search,
+    );
     return [members.map(member => member.toMemberObject(1)), total];
   }
 
@@ -20,18 +24,25 @@ export class MembersService {
     userId: string,
     query: PagingQueryDTO,
     status?: 'active' | 'inactive',
+    search?: string,
   ): Promise<[MemberRO[], number]> {
     const user = await this.checkUser(userId);
-    let downline = (await User.getDownline(user)).map(({ member, level }) =>
-      member.toMemberObject(level),
-    );
-    if (status) {
-      downline = downline.filter(m => m.status === status);
+
+    let result = await User.getDownline(user, status);
+
+    if (search && search.trim() !== '') {
+      result = result.filter(
+        ({ member }) =>
+          member.id === search.trim() ||
+          member.name.match(new RegExp(search.trim(), 'gi')),
+      );
     }
-    return [
-      downline.slice(query.offset, query.offset + query.limit),
-      downline.length,
-    ];
+
+    const downline = result
+      .slice(query.offset, query.offset + query.limit)
+      .map(({ member, level }) => member.toMemberObject(level));
+
+    return [downline, result.length];
   }
 
   private async checkUser(userId: string) {
