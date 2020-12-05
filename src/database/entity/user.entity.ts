@@ -125,18 +125,18 @@ export class User extends Base {
   }
 
   public static findAll(filter: UserFilter, pagingQuery: PagingQueryDTO) {
-    const query = this.createQueryBuilder('user')
+    let query = this.createQueryBuilder('user')
       .leftJoinAndSelect('user.sponsoredBy', 'sponsoredBy')
       .leftJoinAndSelect('user.epin', 'epin');
 
     if (filter.status && filter.status !== 'all') {
-      query.where('user.status = :status', { status: filter.status });
+      query = query.where('user.status = :status', { status: filter.status });
     }
 
     if (filter.wallet) {
       const { min, max } = filter.wallet;
       if (min < max)
-        query
+        query = query
           .andWhere('user.balance >= :min', { min })
           .andWhere('user.balance <= :max', { max });
     }
