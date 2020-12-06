@@ -19,6 +19,7 @@ export class UserEpin extends Base {
   @OneToOne(
     () => EPin,
     epin => epin.purchasedby,
+    { onDelete: 'CASCADE' },
   )
   @JoinColumn()
   epin: EPin;
