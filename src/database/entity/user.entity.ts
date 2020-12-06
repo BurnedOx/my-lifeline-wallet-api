@@ -73,7 +73,7 @@ export class User extends Base {
   @OneToOne(
     type => EPin,
     epin => epin.owner,
-    { nullable: true },
+    { nullable: true, onDelete: 'SET NULL' },
   )
   @JoinColumn()
   epin: EPin | null;
