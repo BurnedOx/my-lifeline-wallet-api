@@ -71,10 +71,10 @@ export class UserEpinController {
     return this.userEpinService.sendFromAdmin(data);
   }
 
-  // @Post('redeem')
-  // @UseGuards(JwtAuthGuard)
-  // @UsePipes(new ValidationPipe())
-  // redeemEpins(@Body() data: RedeemEPinDTO, @CustomHeader() headers: HeaderDTO) {
-  //   return this.userEpinService.redeemEpin(data.count, headers.userId);
-  // }
+  @Post('redeem')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(new ValidationPipe())
+  redeemEpins(@Body() data: RedeemEPinDTO, @CustomHeader() headers: HeaderDTO) {
+    return this.userEpinService.redeemEpin(data.count, headers.userId);
+  }
 }

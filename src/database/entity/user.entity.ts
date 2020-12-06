@@ -316,8 +316,8 @@ export class User extends Base {
   }
 
   toMemberObject(level: number): MemberRO {
-    const { id, name, status, activatedAt, createdAt } = this;
-    return { id, name, level, status, createdAt, activatedAt };
+    const { id, name, mobile, status, activatedAt, createdAt } = this;
+    return { id, name, mobile, level, status, createdAt, activatedAt };
   }
 
   async comparePassword(attempt: string) {

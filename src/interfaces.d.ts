@@ -35,6 +35,7 @@ export interface UserDetailsRO {
 export interface MemberRO {
   id: string;
   name: string;
+  mobile: number;
   level: number;
   status: 'active' | 'inactive';
   activatedAt: Date | null;
