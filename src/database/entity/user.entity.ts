@@ -160,6 +160,15 @@ export class User extends Base {
       .getManyAndCount();
   }
 
+  public static findByJoiningDate(startDate: Date, endDate: Date) {
+    return this.createQueryBuilder('user')
+      .andWhere('user.createdAt BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
+      .getManyAndCount();
+  }
+
   public static findByActivationDate(startDate: Date, endDate: Date) {
     return this.createQueryBuilder('user')
       .andWhere('user.activatedAt BETWEEN :startDate AND :endDate', {

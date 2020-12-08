@@ -110,6 +110,7 @@ export interface AdminDashRO {
   epinIncome: number;
   totalWithdrawal: number;
   joinedToday: number;
+  activatedToday: number;
   activationWeekly: number[];
   incomeWeekly: number[];
   withdrawalWeekly: number[];

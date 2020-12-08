@@ -27,7 +27,8 @@ export class DashboardService {
         ? withdrawals.map(w => w.withdrawAmount).reduce((a, b) => a + b)
         : 0;
     const [startDate, endDate] = this.getTimes();
-    const joinedToday = (
+    const joinedToday = (await User.findByJoiningDate(startDate, endDate))[1];
+    const activatedToday = (
       await User.findByActivationDate(startDate, endDate)
     )[1];
 
@@ -61,9 +62,10 @@ export class DashboardService {
       epinIncome,
       totalWithdrawal,
       joinedToday,
+      activatedToday,
       activationWeekly,
       incomeWeekly,
-      withdrawalWeekly
+      withdrawalWeekly,
     };
   }
 
