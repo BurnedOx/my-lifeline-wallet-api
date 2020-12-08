@@ -62,7 +62,7 @@ export class DashboardService {
       epinIncome,
       totalWithdrawal,
       joinedToday,
-      activatedToday,
+      activationToday: activatedToday,
       activationWeekly,
       incomeWeekly,
       withdrawalWeekly,
