@@ -60,6 +60,16 @@ export interface IncomeRO {
   createdAt: Date;
 }
 
+export interface TaskRO {
+  id: string;
+  amount: number;
+  currentBalance: number;
+  dueDate: Date;
+  owner: Pick<UserRO, 'id' | 'name'>;
+  updatedAt: Date;
+  createdAt: Date;
+}
+
 export interface WithdrawalRO extends BankDetails {
   id: string;
   withdrawAmount: number;

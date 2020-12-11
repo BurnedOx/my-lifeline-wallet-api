@@ -6,7 +6,13 @@ interface PagingResponseParams {
 
 export class PagingResponse {
   constructor(
-    key: 'members' | 'accounts' | 'epins' | 'incomes' | 'transactions',
+    key:
+      | 'members'
+      | 'accounts'
+      | 'epins'
+      | 'incomes'
+      | 'tasks'
+      | 'transactions',
     value: any[],
     params: PagingResponseParams,
   ) {
