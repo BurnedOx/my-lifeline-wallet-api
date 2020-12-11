@@ -130,7 +130,7 @@ export class AccountsService {
       withdrawAmounts.length !== 0
         ? withdrawAmounts.reduce((a, b) => a + b)
         : 0;
-    const totalIncome = levelIncome;
+    const totalIncome = levelIncome + taskIncome;
 
     return {
       wallet,
