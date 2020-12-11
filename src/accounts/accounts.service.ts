@@ -113,9 +113,10 @@ export class AccountsService {
       throw new HttpException('user not found', HttpStatus.NOT_FOUND);
     }
 
-    const { balance: wallet, sponsored, incomes, withdrawals } = user;
+    const { balance: wallet, sponsored, incomes, tasks, withdrawals } = user;
 
     const incomeAmounts = incomes.map(i => i.amount);
+    const taskAmounts = tasks.map(t => t.amount);
     const withdrawAmounts = withdrawals
       .filter(w => w.status === 'paid')
       .map(w => w.withdrawAmount);
@@ -123,6 +124,8 @@ export class AccountsService {
     const downline = (await User.getDownline(user)).length;
     const levelIncome =
       incomeAmounts.length !== 0 ? incomeAmounts.reduce((a, b) => a + b) : 0;
+    const taskIncome =
+      taskAmounts.length !== 0 ? taskAmounts.reduce((a, b) => a + b) : 0;
     const totalWithdrawal =
       withdrawAmounts.length !== 0
         ? withdrawAmounts.reduce((a, b) => a + b)
@@ -134,6 +137,7 @@ export class AccountsService {
       direct,
       downline,
       levelIncome,
+      taskIncome,
       totalWithdrawal,
       totalIncome,
     };

@@ -33,6 +33,15 @@ export class Task extends Base {
       .getManyAndCount();
   }
 
+  public static findAll(query: PagingQueryDTO) {
+    return this.createQueryBuilder('task')
+      .leftJoinAndSelect('task.owner', 'owner')
+      .orderBy('task.dueDate', 'DESC')
+      .offset(query.offset)
+      .limit(query.limit)
+      .getManyAndCount();
+  }
+
   get responseObject(): TaskRO {
     return {
       id: this.id,

@@ -42,4 +42,9 @@ export class TaskService {
     const [tasks, total] = await Task.findByOwnerId(userId, query);
     return [tasks.map(t => t.responseObject), total];
   }
+
+  async getAll(query: PagingQueryDTO): Promise<[TaskRO[], number]> {
+    const [tasks, total] = await Task.findAll(query);
+    return [tasks.map(t => t.responseObject), total];
+  }
 }

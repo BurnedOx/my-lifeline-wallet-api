@@ -189,6 +189,7 @@ export class User extends Base {
     return this.createQueryBuilder('user')
       .leftJoinAndSelect('user.sponsored', 'sponsored')
       .leftJoinAndSelect('user.incomes', 'incomes')
+      .leftJoinAndSelect('user.tasks', 'tasks')
       .leftJoinAndSelect('user.withdrawals', 'withdrawals')
       .where('user.id = :userId', { userId })
       .getOne();

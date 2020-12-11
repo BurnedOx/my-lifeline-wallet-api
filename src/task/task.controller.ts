@@ -31,6 +31,19 @@ export class TaskController {
     });
   }
 
+  @Get('all')
+  @hasRoles('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(new ValidationPipe())
+  async getAll(@PagingQuery() query: PagingQueryDTO) {
+    const [tasks, total] = await this.taskService.getAll(query);
+    return new PagingResponse('tasks', tasks, {
+      limit: query.limit,
+      offset: query.offset,
+      total,
+    });
+  }
+
   @Post()
   @hasRoles('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)

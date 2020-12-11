@@ -28,6 +28,7 @@ export interface UserDetailsRO {
   direct: number;
   downline: number;
   levelIncome: number;
+  taskIncome: number;
   totalWithdrawal: number;
   totalIncome: number;
 }
