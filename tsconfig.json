@@ -11,7 +11,8 @@
     "baseUrl": "./",
     "incremental": true,
     "paths": {
-      "@common/*": ["src/common/*"]
+      "@common/*": ["src/common/*"],
+      "@entity/*": ["src/database/entity/*"]
     }
   },
   "exclude": ["node_modules", "dist"]

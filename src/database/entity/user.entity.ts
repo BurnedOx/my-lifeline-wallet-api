@@ -26,6 +26,7 @@ import { map } from 'rxjs/operators';
 import { UserEpin } from './userEpin.entity';
 import { EpinHistory } from './epinHistory.entity';
 import { PagingQueryDTO } from '@common/dto/paging-query.dto';
+import { Task } from './task.entity';
 
 @Entity()
 export class User extends Base {
@@ -83,6 +84,12 @@ export class User extends Base {
     income => income.owner,
   )
   incomes: Income[];
+
+  @OneToMany(
+    () => Task,
+    task => task.owner,
+  )
+  tasks: Task[];
 
   @OneToMany(
     () => Income,
