@@ -15,6 +15,7 @@ import { UserEpinModule } from './user-epin/user-epin.module';
 import { EpinHistoryModule } from './epin-history/epin-history.module';
 import { PaymentModule } from './payment/payment.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { TaskModule } from './task/task.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     EpinHistoryModule,
     PaymentModule,
     DashboardModule,
+    TaskModule,
   ],
   controllers: [AppController],
   providers: [AppService],
