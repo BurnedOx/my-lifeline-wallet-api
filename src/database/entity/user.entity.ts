@@ -135,7 +135,7 @@ export class User extends Base {
 
   public static findAll(
     filter: UserFilter,
-    pagingQuery: PagingQueryDTO,
+    pagingQuery?: PagingQueryDTO,
     search?: string,
   ) {
     let query = this.createQueryBuilder('user')
@@ -160,11 +160,13 @@ export class User extends Base {
           .andWhere('user.balance <= :max', { max });
     }
 
-    return query
-      .orderBy('user.createdAt', 'DESC')
-      .limit(pagingQuery.limit)
-      .offset(pagingQuery.offset)
-      .getManyAndCount();
+    query = query.orderBy('user.createdAt', 'DESC');
+
+    if (pagingQuery) {
+      query = query.limit(pagingQuery.limit).offset(pagingQuery.offset);
+    }
+
+    return query.getManyAndCount();
   }
 
   public static findByJoiningDate(startDate: Date, endDate: Date) {

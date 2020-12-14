@@ -9,6 +9,7 @@ import {
   Delete,
   Param,
   Query,
+  Res,
 } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { ValidationPipe } from '../common/validation.pipe';
@@ -29,10 +30,55 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { PagingQuery } from '@common/decorators/common-query-decorator';
 import { PagingQueryDTO } from '@common/dto/paging-query.dto';
 import { PagingResponse } from '@common/dto/paginated-response.dto';
+import { Response } from 'express';
+import { Parser } from 'json2csv';
+import * as moment from 'moment';
+import { USER_CSV_FIELDS } from '@common/costraints';
 
 @Controller('accounts')
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
+
+  @Get('users/download')
+  @hasRoles('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async downloadAll(
+    @Res() res: Response,
+    @Query('status') status?: 'active' | 'inactive' | 'all',
+    @Query('wallet') walletStr?: string,
+  ) {
+    let [min, max] = walletStr?.split(',')?.map(val => parseInt(val)) ?? [
+      undefined,
+      undefined,
+    ];
+    let wallet: any = undefined;
+    if (min !== undefined && max !== undefined) {
+      wallet = { min, max };
+    }
+    const members = (await this.accountsService.getAll({ status, wallet }))[0];
+    
+    const data = members.map(m => ({
+      id: m.id,
+      name: m.name,
+      mobile: m.mobile,
+      wallet: m.wallet,
+      status: m.status,
+      sponsorId: m.sponsoredBy?.id ?? 'NaN',
+      sponsorName: m.sponsoredBy?.name ?? 'NaN',
+      activatedAt: m.activatedAt ? moment(m.activatedAt).format('lll') : 'NaN',
+      createdAt: moment(m.createdAt).format('lll'),
+    }));
+    const title = `IPL-Members-${Date.now()}.csv`;
+    const json2csv = new Parser({ fields: USER_CSV_FIELDS });
+    try {
+      const csv = json2csv.parse(data);
+      res.attachment(title);
+      res.status(200).send(csv);
+    } catch (error) {
+      console.log('error:', error.message);
+      res.status(500).send(error.message);
+    }
+  }
 
   @Get('users')
   @hasRoles('admin')
@@ -42,7 +88,7 @@ export class AccountsController {
     @Query('status') status?: 'active' | 'inactive' | 'all',
     @Query('wallet') walletStr?: string,
     @Query('search') search?: string,
-    ): Promise<PagingResponse> {
+  ): Promise<PagingResponse> {
     let [min, max] = walletStr?.split(',')?.map(val => parseInt(val)) ?? [
       undefined,
       undefined,
