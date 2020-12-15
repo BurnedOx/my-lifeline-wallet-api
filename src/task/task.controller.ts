@@ -41,7 +41,7 @@ export class TaskController {
   @UsePipes(new ValidationPipe())
   async getAll(
     @PagingQuery() query: PagingQueryDTO,
-    @DateQuery() byDate?: DateQueryDTO,
+    @DateQuery() byDate: DateQueryDTO,
   ) {
     const [tasks, total] = await this.taskService.getAll(query, byDate);
     return new PagingResponse('tasks', tasks, {

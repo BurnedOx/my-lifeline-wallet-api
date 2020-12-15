@@ -44,7 +44,7 @@ export class TaskService {
     return [tasks.map(t => t.responseObject), total];
   }
 
-  async getAll(query: PagingQueryDTO, byDate?: DateQueryDTO): Promise<[TaskRO[], number]> {
+  async getAll(query: PagingQueryDTO, byDate: DateQueryDTO): Promise<[TaskRO[], number]> {
     const [tasks, total] = await Task.findAll(query, byDate);
     return [tasks.map(t => t.responseObject), total];
   }

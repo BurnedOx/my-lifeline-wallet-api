@@ -36,15 +36,15 @@ export class Task extends Base {
 
   public static findAll(
     query: PagingQueryDTO,
-    byDate?: DateQueryDTO,
+    byDate: DateQueryDTO,
   ) {
     let q = this.createQueryBuilder('task').leftJoinAndSelect(
       'task.owner',
       'owner',
     );
 
-    if (byDate) {
-      const { from, to } = byDate;
+    const { from, to } = byDate;
+    if (from && to) {
       q = q.where('task.dueDate BETWEEN :from AND :to', { from, to });
     }
 
