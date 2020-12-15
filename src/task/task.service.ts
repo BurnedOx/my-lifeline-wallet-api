@@ -1,3 +1,4 @@
+import { DateQueryDTO } from '@common/dto/date-query.dto';
 import { PagingQueryDTO } from '@common/dto/paging-query.dto';
 import { Task } from '@entity/task.entity';
 import { Transaction } from '@entity/transaction.entity';
@@ -43,8 +44,8 @@ export class TaskService {
     return [tasks.map(t => t.responseObject), total];
   }
 
-  async getAll(query: PagingQueryDTO): Promise<[TaskRO[], number]> {
-    const [tasks, total] = await Task.findAll(query);
+  async getAll(query: PagingQueryDTO, byDate?: DateQueryDTO): Promise<[TaskRO[], number]> {
+    const [tasks, total] = await Task.findAll(query, byDate);
     return [tasks.map(t => t.responseObject), total];
   }
 }

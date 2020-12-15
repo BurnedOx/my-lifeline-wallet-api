@@ -1,3 +1,4 @@
+import { DateQueryDTO } from '@common/dto/date-query.dto';
 import { PagingQueryDTO } from '@common/dto/paging-query.dto';
 import { TaskRO } from 'src/interfaces';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
@@ -33,9 +34,21 @@ export class Task extends Base {
       .getManyAndCount();
   }
 
-  public static findAll(query: PagingQueryDTO) {
-    return this.createQueryBuilder('task')
-      .leftJoinAndSelect('task.owner', 'owner')
+  public static findAll(
+    query: PagingQueryDTO,
+    byDate?: DateQueryDTO,
+  ) {
+    let q = this.createQueryBuilder('task').leftJoinAndSelect(
+      'task.owner',
+      'owner',
+    );
+
+    if (byDate) {
+      const { from, to } = byDate;
+      q = q.where('task.dueDate BETWEEN :from AND :to', { from, to });
+    }
+
+    return q
       .orderBy('task.dueDate', 'DESC')
       .offset(query.offset)
       .limit(query.limit)

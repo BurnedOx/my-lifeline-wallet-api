@@ -1,8 +1,12 @@
 import { CustomHeader } from '@common/decorators/common-header-decorator';
-import { PagingQuery } from '@common/decorators/common-query-decorator';
+import {
+  DateQuery,
+  PagingQuery,
+} from '@common/decorators/common-query-decorator';
 import { CustomBody } from '@common/decorators/custom-body-decorator';
 import { hasRoles } from '@common/decorators/roles-decorator';
 import { HeaderDTO } from '@common/dto/base-header.dto';
+import { DateQueryDTO } from '@common/dto/date-query.dto';
 import { PagingResponse } from '@common/dto/paginated-response.dto';
 import { PagingQueryDTO } from '@common/dto/paging-query.dto';
 import { JwtAuthGuard } from '@common/guards/jwt.guard';
@@ -35,8 +39,11 @@ export class TaskController {
   @hasRoles('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe())
-  async getAll(@PagingQuery() query: PagingQueryDTO) {
-    const [tasks, total] = await this.taskService.getAll(query);
+  async getAll(
+    @PagingQuery() query: PagingQueryDTO,
+    @DateQuery() byDate?: DateQueryDTO,
+  ) {
+    const [tasks, total] = await this.taskService.getAll(query, byDate);
     return new PagingResponse('tasks', tasks, {
       limit: query.limit,
       offset: query.offset,
