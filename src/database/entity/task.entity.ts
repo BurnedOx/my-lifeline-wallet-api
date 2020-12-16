@@ -40,12 +40,12 @@ export class Task extends Base {
       'owner',
     );
 
-    if (byDate) {
+    if (byDate?.from && byDate?.to) {
       const { from, to } = byDate;
       q = q.where('task.dueDate BETWEEN :from AND :to', { from, to });
     }
 
-    if (query) {
+    if (query?.limit && query?.offset) {
       q = q
         .orderBy('task.dueDate', 'DESC')
         .offset(query.offset)
