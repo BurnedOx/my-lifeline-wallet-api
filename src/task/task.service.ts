@@ -44,8 +44,17 @@ export class TaskService {
     return [tasks.map(t => t.responseObject), total];
   }
 
-  async getAll(query: PagingQueryDTO, byDate: DateQueryDTO): Promise<[TaskRO[], number]> {
+  async getAll(
+    query: PagingQueryDTO,
+    byDate: DateQueryDTO,
+  ): Promise<[TaskRO[], number]> {
     const [tasks, total] = await Task.findAll(query, byDate);
     return [tasks.map(t => t.responseObject), total];
+  }
+
+  async getTotal(byDate?: DateQueryDTO) {
+    const tasks = (await Task.findAll(undefined, byDate))[0];
+    const payments = tasks.map(t => t.amount);
+    return payments.reduce((a, b) => a + b);
   }
 }

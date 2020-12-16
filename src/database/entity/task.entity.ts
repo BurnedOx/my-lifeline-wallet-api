@@ -34,25 +34,25 @@ export class Task extends Base {
       .getManyAndCount();
   }
 
-  public static findAll(
-    query: PagingQueryDTO,
-    byDate: DateQueryDTO,
-  ) {
+  public static findAll(query?: PagingQueryDTO, byDate?: DateQueryDTO) {
     let q = this.createQueryBuilder('task').leftJoinAndSelect(
       'task.owner',
       'owner',
     );
 
-    const { from, to } = byDate;
-    if (from && to) {
+    if (byDate) {
+      const { from, to } = byDate;
       q = q.where('task.dueDate BETWEEN :from AND :to', { from, to });
     }
 
-    return q
-      .orderBy('task.dueDate', 'DESC')
-      .offset(query.offset)
-      .limit(query.limit)
-      .getManyAndCount();
+    if (query) {
+      q = q
+        .orderBy('task.dueDate', 'DESC')
+        .offset(query.offset)
+        .limit(query.limit);
+    }
+
+    return q.getManyAndCount();
   }
 
   get responseObject(): TaskRO {

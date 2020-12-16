@@ -51,6 +51,14 @@ export class TaskController {
     });
   }
 
+  @Get('total')
+  @hasRoles('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(new ValidationPipe())
+  getTotal(@DateQuery() byDate?: DateQueryDTO) {
+    return this.taskService.getTotal(byDate);
+  }
+
   @Post()
   @hasRoles('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
