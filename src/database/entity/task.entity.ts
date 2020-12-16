@@ -45,7 +45,7 @@ export class Task extends Base {
       q = q.where('task.dueDate BETWEEN :from AND :to', { from, to });
     }
 
-    if (query?.limit && query?.offset) {
+    if (query?.limit !== undefined && query?.offset !== undefined) {
       q = q
         .orderBy('task.dueDate', 'DESC')
         .offset(query.offset)
