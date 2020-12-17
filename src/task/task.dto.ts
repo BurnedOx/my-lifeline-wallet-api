@@ -1,9 +1,11 @@
+import { StringSplit } from "@common/transform/string-split";
 import { Type } from "class-transformer";
-import { IsDate, IsNumber, IsString } from "class-validator";
+import { ArrayMaxSize, IsDate, IsNumber, IsString } from "class-validator";
 
 export class CreateTaskDTO {
-    @IsString()
-    userId: string;
+    @ArrayMaxSize(20,)
+    @StringSplit()
+    ids: string[];
 
     @IsDate()
     @Type(() => Date)

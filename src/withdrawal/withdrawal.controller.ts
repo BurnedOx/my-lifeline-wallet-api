@@ -7,7 +7,8 @@ import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { WithdrawalDTO } from './withdrawal.dto';
 import { hasRoles } from 'src/common/decorators/roles-decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
-import { ParamIds } from 'src/common/dto/multi-ids.dto';
+import { ParamIdsDTO } from 'src/common/dto/multi-ids.dto';
+import { ParamIds } from '@common/decorators/common-param-decorator';
 
 @Controller('withdrawal')
 export class WithdrawalController {
@@ -54,7 +55,7 @@ export class WithdrawalController {
     @hasRoles('admin')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @UsePipes(new ValidationPipe())
-    pay(@Param() params: ParamIds) {
+    pay(@ParamIds() params: ParamIdsDTO) {
         return this.withdrawlService.payMultiple(params.ids);
     }
 
@@ -62,7 +63,7 @@ export class WithdrawalController {
     @hasRoles('admin')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @UsePipes(new ValidationPipe())
-    unpay(@Param() params: ParamIds) {
+    unpay(@ParamIds() params: ParamIdsDTO) {
         return this.withdrawlService.unpayMultiple(params.ids);
     }
 
@@ -70,7 +71,7 @@ export class WithdrawalController {
     @hasRoles('admin')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @UsePipes(new ValidationPipe())
-    cancel(@Param() params: ParamIds) {
+    cancel(@ParamIds() params: ParamIdsDTO) {
         return this.withdrawlService.cancelMultiple(params.ids);
     }
 }

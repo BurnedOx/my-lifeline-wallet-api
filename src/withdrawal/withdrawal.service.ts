@@ -142,8 +142,8 @@ export class WithdrawalService {
     });
   }
 
-  async payMultiple(ids: string) {
-    const withdrawals = await this.withdrawlRepo.findByIds(ids.split(','), {
+  async payMultiple(ids: string[]) {
+    const withdrawals = await this.withdrawlRepo.findByIds(ids, {
       relations: ['owner'],
     });
 
@@ -173,8 +173,8 @@ export class WithdrawalService {
     });
   }
 
-  async unpayMultiple(ids: string) {
-    const withdrawals = await this.withdrawlRepo.findByIds(ids.split(','));
+  async unpayMultiple(ids: string[]) {
+    const withdrawals = await this.withdrawlRepo.findByIds(ids);
 
     return getManager().transaction(async trx => {
       for (let withdrawal of withdrawals) {
@@ -191,8 +191,8 @@ export class WithdrawalService {
     });
   }
 
-  async cancelMultiple(ids: string) {
-    const withdrawals = await this.withdrawlRepo.findByIds(ids.split(','), {
+  async cancelMultiple(ids: string[]) {
+    const withdrawals = await this.withdrawlRepo.findByIds(ids, {
       relations: ['owner'],
     });
 

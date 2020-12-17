@@ -11,27 +11,30 @@ import { CreateTaskDTO } from './task.dto';
 @Injectable()
 export class TaskService {
   async create(data: CreateTaskDTO) {
-    const { amount, dueDate, userId } = data;
-    const owner = await User.findOne(userId);
-    const currentBalance = owner.balance + amount;
-    const task = Task.create({
-      amount,
-      currentBalance,
-      dueDate,
-      owner,
-    });
-    const transaction = Transaction.create({
-      amount,
-      currentBalance,
-      owner,
-      type: 'credit',
-      remarks: 'Credited for tasks',
-    });
+    const { amount, dueDate, ids } = data;
+    const owners = await User.findByIds(ids);
+
     await getManager().transaction(async trx => {
-      owner.balance = currentBalance;
-      await trx.save(owner);
-      await trx.save(task);
-      await trx.save(transaction);
+      for (const owner of owners) {
+        const currentBalance = owner.balance + amount;
+        const task = Task.create({
+          amount,
+          currentBalance,
+          dueDate,
+          owner,
+        });
+        const transaction = Transaction.create({
+          amount,
+          currentBalance,
+          owner,
+          type: 'credit',
+          remarks: 'Credited for tasks',
+        });
+        owner.balance = currentBalance;
+        await trx.save(owner);
+        await trx.save(task);
+        await trx.save(transaction);
+      }
     });
     return 'ok';
   }
