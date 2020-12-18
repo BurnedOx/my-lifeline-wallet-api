@@ -1,9 +1,9 @@
 import { StringSplit } from "@common/transform/string-split";
 import { Type } from "class-transformer";
-import { ArrayMaxSize, IsDate, IsNumber, IsString } from "class-validator";
+import { ArrayMinSize, IsDate, IsNumber, IsString } from "class-validator";
 
 export class CreateTaskDTO {
-    @ArrayMaxSize(20,)
+    @ArrayMinSize(1)
     @StringSplit()
     ids: string[];
 
