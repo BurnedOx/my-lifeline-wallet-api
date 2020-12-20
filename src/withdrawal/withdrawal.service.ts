@@ -70,7 +70,7 @@ export class WithdrawalService {
       );
     }
 
-    if (owner.balance < withdrawAmount) {
+    if (parseFloat(owner.balance) < withdrawAmount) {
       throw new HttpException('not enough balance', HttpStatus.BAD_REQUEST);
     }
 
@@ -98,8 +98,8 @@ export class WithdrawalService {
     }
 
     return getManager().transaction(async trx => {
-      const newWithdrawl = await this.withdrawlRepo.create({
-        netAmount: owner.balance - withdrawAmount,
+      const newWithdrawl = this.withdrawlRepo.create({
+        netAmount: `${parseFloat(owner.balance) - withdrawAmount}`,
         withdrawAmount,
         owner,
         bankDetails,
@@ -125,12 +125,12 @@ export class WithdrawalService {
       withdrawl.status = status;
       await trx.save(withdrawl);
       if (status === 'cancelled') {
-        owner.balance = owner.balance + withdrawl.withdrawAmount;
+        owner.balance = `${parseFloat(owner.balance) + withdrawl.withdrawAmount}`;
         await trx.save(owner);
       }
       if (status === 'paid') {
         const transaction = this.trxRepo.create({
-          amount: withdrawl.withdrawAmount,
+          amount: `${withdrawl.withdrawAmount}`,
           currentBalance: withdrawl.netAmount,
           type: 'debit',
           remarks: 'Withdrawal Payment',
@@ -161,7 +161,7 @@ export class WithdrawalService {
         await trx.save(withdrawal);
 
         const transaction = this.trxRepo.create({
-          amount: withdrawal.withdrawAmount,
+          amount: `${withdrawal.withdrawAmount}`,
           currentBalance: withdrawal.netAmount,
           type: 'debit',
           remarks: 'Withdrawal Payment',
@@ -205,7 +205,7 @@ export class WithdrawalService {
           );
         }
         const { owner } = withdrawal;
-        owner.balance = owner.balance + withdrawal.withdrawAmount;
+        owner.balance = `${parseFloat(owner.balance) + withdrawal.withdrawAmount}`;
         await trx.save(owner);
         withdrawal.status = 'cancelled';
         await trx.save(withdrawal);

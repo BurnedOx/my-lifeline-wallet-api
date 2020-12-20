@@ -154,7 +154,7 @@ export class UserEpinService {
       throw new HttpException('Invalid user id', HttpStatus.NOT_FOUND);
     }
 
-    if (owner.balance < totalCost) {
+    if (parseFloat(owner.balance) < totalCost) {
       throw new HttpException('Not enough balance', HttpStatus.NOT_ACCEPTABLE);
     }
 
@@ -181,7 +181,7 @@ export class UserEpinService {
         await trx.save(history);
         epins.push(epin);
       }
-      owner.balance -= totalCost;
+      owner.balance = `${parseFloat(owner.balance) - totalCost}`;
       await trx.save(owner);
     });
 
