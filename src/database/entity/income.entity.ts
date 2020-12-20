@@ -11,8 +11,8 @@ export class Income extends Base {
   @Column({ type: 'numeric', precision: 15, scale: 2 })
   amount: string;
 
-  @Column({ type: 'numeric', precision: 15, scale: 2 })
-  currentBalance: string;
+  @Column({ type: 'numeric', precision: 15, scale: 2, default: '0' })
+  remaining: string;
 
   @ManyToOne(
     () => User,
@@ -31,12 +31,12 @@ export class Income extends Base {
   from: User;
 
   toResponseObject(): IncomeRO {
-    const { id, level, amount, currentBalance, owner, from, createdAt } = this;
+    const { id, level, amount, remaining, owner, from, createdAt } = this;
     return {
       id,
       level,
       amount,
-      currentBalance,
+      remaining,
       createdAt,
       ownerId: owner.id,
       from: { id: from.id, name: from.name },

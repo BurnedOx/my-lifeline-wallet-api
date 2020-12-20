@@ -57,7 +57,7 @@ export interface IncomeRO {
   from: Pick<UserRO, 'id' | 'name'>;
   level: number;
   amount: string;
-  currentBalance: string;
+  remaining: string;
   createdAt: Date;
 }
 
