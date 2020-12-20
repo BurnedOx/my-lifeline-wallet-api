@@ -12,7 +12,7 @@ export interface UserRO {
   mobile: number;
   sponsoredBy: Pick<UserRO, 'id' | 'name'> | null;
   epinId: string | null;
-  wallet: number;
+  wallet: string;
   bankDetails: BankDetails | null;
   panNumber: string | null;
   roll: 'user' | 'admin';
@@ -56,15 +56,15 @@ export interface IncomeRO {
   ownerId: string;
   from: Pick<UserRO, 'id' | 'name'>;
   level: number;
-  amount: number;
-  currentBalance: number;
+  amount: string;
+  remaining: string;
   createdAt: Date;
 }
 
 export interface TaskRO {
   id: string;
-  amount: number;
-  currentBalance: number;
+  amount: string;
+  currentBalance: string;
   dueDate: Date;
   owner: Pick<UserRO, 'id' | 'name'>;
   updatedAt: Date;
@@ -74,7 +74,7 @@ export interface TaskRO {
 export interface WithdrawalRO extends BankDetails {
   id: string;
   withdrawAmount: number;
-  netAmount: number;
+  netAmount: string;
   processedAt: Date | null;
   paymentType: string;
   status: 'paid' | 'unpaid' | 'cancelled';
@@ -84,9 +84,9 @@ export interface WithdrawalRO extends BankDetails {
 
 export interface TransactionRO {
   id: string;
-  credit?: number;
-  debit?: number;
-  currentBalance: number;
+  credit?: string;
+  debit?: string;
+  currentBalance: string;
   remarks: string;
   createdAt: Date;
 }

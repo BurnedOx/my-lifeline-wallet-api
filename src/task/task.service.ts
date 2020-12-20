@@ -16,15 +16,15 @@ export class TaskService {
 
     await getManager().transaction(async trx => {
       for (const owner of owners) {
-        const currentBalance = owner.balance + amount;
+        const currentBalance = `${parseFloat(owner.balance) + amount}`;
         const task = Task.create({
-          amount,
+          amount: `${amount}`,
           currentBalance,
           dueDate,
           owner,
         });
         const transaction = Transaction.create({
-          amount,
+          amount: `${amount}`,
           currentBalance,
           owner,
           type: 'credit',

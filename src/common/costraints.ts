@@ -1,11 +1,12 @@
 export const levelIncomeAmount = {
+  0: 100,
   1: 100,
-  2: 30,
-  3: 20,
-  4: 10,
-  5: 5,
-  6: 5,
-  7: 5,
+  2: 40,
+  3: 40,
+  4: 20,
+  5: 20,
+  6: 10,
+  7: 10,
 };
 
 export const USER_CSV_FIELDS = [
