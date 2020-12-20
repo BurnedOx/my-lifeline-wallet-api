@@ -7,11 +7,11 @@ import { User } from './user.entity';
 
 @Entity()
 export class Task extends Base {
-  @Column()
-  amount: number;
+  @Column({ type: 'numeric', precision: 15, scale: 2 })
+  amount: string;
 
-  @Column({ default: 0 })
-  currentBalance: number;
+  @Column({ type: 'numeric', precision: 15, scale: 2 })
+  currentBalance: string;
 
   @Column()
   dueDate: Date;

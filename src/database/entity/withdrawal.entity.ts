@@ -8,8 +8,8 @@ export class Withdrawal extends Base {
   @Column()
   withdrawAmount: number;
 
-  @Column()
-  netAmount: number;
+  @Column({ type: 'numeric', precision: 15, scale: 2 })
+  netAmount: string;
 
   @Column({ nullable: true, default: null })
   processedAt: Date | null;

@@ -54,8 +54,8 @@ export class User extends Base {
   @Column({ nullable: true, default: null })
   panNumber: string | null;
 
-  @Column({ default: 0 })
-  balance: number;
+  @Column({ type: 'numeric', precision: 15, scale: 2, default: '0' })
+  balance: string;
 
   @OneToMany(
     type => User,
@@ -271,7 +271,7 @@ export class User extends Base {
     trx?: EntityManager,
   ) {
     const user = await (trx ? trx.findOne(this, id) : this.findOne(id));
-    const options = { balance: user.balance + amount };
+    const options = { balance: `${parseFloat(user.balance) + amount}` };
     const result = await (trx
       ? trx.update(this, { id }, options)
       : this.update(id, options));
@@ -287,7 +287,7 @@ export class User extends Base {
 
   public static async debitBalance(id: string, amount: number) {
     const user = await this.findOne(id);
-    const result = await this.update(id, { balance: user.balance - amount });
+    const result = await this.update(id, { balance: `${parseFloat(user.balance) - amount}` });
     if (result.affected && result.affected === 0) {
       throw Error(
         'No changed made to the user. Entity might be missing. Check ' + id,
