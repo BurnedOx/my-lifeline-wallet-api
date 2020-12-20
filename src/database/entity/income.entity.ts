@@ -30,6 +30,13 @@ export class Income extends Base {
   @JoinColumn()
   from: User;
 
+  public static getToBePaid() {
+    return this.createQueryBuilder('income')
+      .leftJoinAndSelect('income.owner', 'owner')
+      .where('income.remaining > 0')
+      .getMany();
+  }
+
   toResponseObject(): IncomeRO {
     const { id, level, amount, remaining, owner, from, createdAt } = this;
     return {

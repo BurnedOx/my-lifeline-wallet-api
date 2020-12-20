@@ -113,10 +113,10 @@ export class AccountsService {
       throw new HttpException('user not found', HttpStatus.NOT_FOUND);
     }
 
-    const { balance: wallet, sponsored, incomes, tasks, withdrawals } = user;
+    const { balance, sponsored, incomes, tasks, withdrawals } = user;
 
-    const incomeAmounts = incomes.map(i => i.amount);
-    const taskAmounts = tasks.map(t => t.amount);
+    const incomeAmounts = incomes.map(i => parseFloat(i.amount));
+    const taskAmounts = tasks.map(t => parseFloat(t.amount));
     const withdrawAmounts = withdrawals
       .filter(w => w.status === 'paid')
       .map(w => w.withdrawAmount);
@@ -133,7 +133,7 @@ export class AccountsService {
     const totalIncome = levelIncome + taskIncome;
 
     return {
-      wallet,
+      wallet: parseFloat(balance),
       direct,
       downline,
       levelIncome,
@@ -276,7 +276,7 @@ export class AccountsService {
     const users = await User.find();
     await getManager().transaction(async trx => {
       for (let user of users) {
-        user.balance = 0;
+        user.balance = '0';
         await trx.save(user);
       }
     });
@@ -293,14 +293,14 @@ export class AccountsService {
 
   async debitBalance(userId: string, amount: number) {
     const user = await User.findOne(userId);
-    if (user.balance < amount) {
+    if (parseFloat(user.balance) < amount) {
       throw new HttpException('Insufficient balance', HttpStatus.BAD_REQUEST);
     }
     getManager().transaction(async trx => {
-      user.balance = user.balance - amount;
+      user.balance = `${parseFloat(user.balance) - amount}`;
       await trx.save(user);
       const transaction = Transaction.create({
-        amount,
+        amount: `${amount}`,
         currentBalance: user.balance,
         type: 'debit',
         remarks: 'Debited by Admin',
