@@ -57,7 +57,7 @@ export class TaskService {
 
   async getTotal(byDate?: DateQueryDTO) {
     const tasks = (await Task.findAll(undefined, byDate))[0];
-    const payments = tasks.map(t => t.amount);
+    const payments = tasks.map(t => parseFloat(t.amount));
     return payments.length !== 0 ? payments.reduce((a, b) => a + b) : 0;
   }
 }
