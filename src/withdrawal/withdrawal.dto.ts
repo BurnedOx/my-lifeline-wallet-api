@@ -2,7 +2,7 @@ import { IsNumber, Min, Max } from "class-validator";
 
 export class WithdrawalDTO {
     @IsNumber()
-    @Min(200)
+    @Min(300)
     @Max(20000)
     withdrawAmount: number;
 }
