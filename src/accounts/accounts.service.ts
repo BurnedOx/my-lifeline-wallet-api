@@ -116,6 +116,9 @@ export class AccountsService {
     const { balance, sponsored, incomes, tasks, withdrawals } = user;
 
     const incomeAmounts = incomes.map(i => parseFloat(i.amount));
+    const selfIncomeAmounts = incomes
+      .filter(i => i.level === 0)
+      .map(i => parseFloat(i.amount));
     const taskAmounts = tasks.map(t => parseFloat(t.amount));
     const withdrawAmounts = withdrawals
       .filter(w => w.status === 'paid')
@@ -124,6 +127,10 @@ export class AccountsService {
     const downline = (await User.getDownline(user)).length;
     const levelIncome =
       incomeAmounts.length !== 0 ? incomeAmounts.reduce((a, b) => a + b) : 0;
+    const selfIncome =
+      selfIncomeAmounts.length !== 0
+        ? selfIncomeAmounts.reduce((a, b) => a + b)
+        : 0;
     const taskIncome =
       taskAmounts.length !== 0 ? taskAmounts.reduce((a, b) => a + b) : 0;
     const totalWithdrawal =
@@ -137,6 +144,7 @@ export class AccountsService {
       direct,
       downline,
       levelIncome,
+      selfIncome,
       taskIncome,
       totalWithdrawal,
       totalIncome,
