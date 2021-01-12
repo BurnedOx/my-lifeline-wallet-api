@@ -2,7 +2,7 @@ import { CreateDateColumn, UpdateDateColumn, BaseEntity, PrimaryColumn, BeforeIn
 import { customAlphabet } from "nanoid";
 
 export class Base extends BaseEntity {
-    private generateId = customAlphabet('1234567890', 8)
+    private generateId = customAlphabet('1234567890', 9)
 
     @PrimaryColumn()
     id: string;
