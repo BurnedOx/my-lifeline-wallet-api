@@ -26,7 +26,7 @@ export class TransactionService {
     }
     const [trx, total] = await this.trxRepo.findAndCount({
       where: { owner },
-      order: { createdAt: 'DESC' },
+      order: { createdAt: 'DESC', currentBalance: 'DESC' },
       take: query.limit,
       skip: query.offset,
     });
