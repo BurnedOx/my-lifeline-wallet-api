@@ -4,11 +4,9 @@ import { User } from 'src/database/entity/user.entity';
 import { Repository, getManager } from 'typeorm';
 import { RegistrationDTO, LoginDTO, AdminRegistrationDTO, UpdatePasswordDTO, ProfileDTO, BankDTO } from './accounts.dto';
 import { EPin } from 'src/database/entity/epin.entity';
-import { RankService } from 'src/rank/rank.service';
 import { IncomeService } from 'src/income/income.service';
 import * as bcrypct from 'bcryptjs';
 import { UserDetailsRO, UserRO } from 'src/interfaces';
-import { Ranks } from 'src/common/costraints';
 import { JwtService } from '@nestjs/jwt';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -25,27 +23,25 @@ export class AccountsService {
 
         private readonly incomeService: IncomeService,
 
-        private readonly rankService: RankService,
-
         private readonly jwtService: JwtService,
 
         private readonly aws: AWSHandler,
     ) { }
 
     findOne(id: string): Observable<UserRO> {
-        return from(this.userRepo.findOne(id, { relations: ['sponsoredBy', 'epin', 'ranks'] })).pipe(
+        return from(this.userRepo.findOne(id, { relations: ['sponsoredBy', 'epin'] })).pipe(
             map((user) => user?.toResponseObject())
         )
     }
 
     async getAll() {
-        const users = await this.userRepo.find({ relations: ['sponsoredBy', 'epin', 'ranks'] });
+        const users = await this.userRepo.find({ relations: ['sponsoredBy', 'epin'] });
         return users.map(user => user.toResponseObject());
     }
 
     async login(data: LoginDTO, admin: boolean = false) {
         const { userId, password } = data;
-        const user = await this.userRepo.findOne(userId, { relations: ['sponsoredBy', 'epin', 'ranks'] });
+        const user = await this.userRepo.findOne(userId, { relations: ['sponsoredBy', 'epin'] });
 
         if (!user || !(await user.comparePassword(password)) || (admin && user.role !== 'admin')) {
             throw new HttpException('Invalid userid/password', HttpStatus.BAD_REQUEST);
@@ -84,7 +80,6 @@ export class AccountsService {
     async getDetails(userId: string): Promise<UserDetailsRO> {
         const user1 = await this.userRepo.createQueryBuilder("user")
             .leftJoinAndSelect('user.sponsored', 'sponsored')
-            .leftJoinAndSelect('user.ranks', 'ranks')
             .where('user.id = :userId', { userId })
             .getOne();
 
@@ -100,30 +95,21 @@ export class AccountsService {
 
         const {
             balance: wallet,
-            ranks,
             sponsored,
-            totalSingleLeg: singleLeg
         } = user1;
 
         const { incomes, withdrawals } = user2;
 
-        ranks?.sort((a, b) => {
-            const aRank = Ranks.find(r => r.type === a.rank);
-            const bRank = Ranks.find(r => r.type === b.rank);
-            return (bRank.company - aRank.company);
-        });
         const incomeAmounts = incomes.map(i => i.amount);
         const withdrawAmounts = withdrawals.filter(w => w.status === 'paid').map(w => w.withdrawAmount);
-        const rank = ranks ? (ranks[0]?.rank ?? null) : null
         const direct = sponsored.length;
         const downline = (await User.getDownline(user1)).length;
         const levelIncome = incomeAmounts.length !== 0 ? incomeAmounts.reduce((a, b) => a + b) : 0;
-        const singleLegIncome = ranks.length !== 0 ? ranks.map(r => r.income).reduce((a, b) => a + b) : 0;
         const totalWithdrawal = withdrawAmounts.length !== 0 ? withdrawAmounts.reduce((a, b) => a + b) : 0;
-        const totalIncome = levelIncome + singleLegIncome;
+        const totalIncome = levelIncome;
 
         return {
-            wallet, rank, direct, downline, singleLeg, levelIncome, singleLegIncome, totalWithdrawal, totalIncome
+            wallet, direct, downline, levelIncome, totalWithdrawal, totalIncome
         };
     }
 
@@ -150,7 +136,7 @@ export class AccountsService {
             throw new HttpException('E-Pin already used', HttpStatus.BAD_REQUEST);
         }
 
-        const user = await this.userRepo.findOne(userId, { relations: ['sponsoredBy', 'epin', 'ranks'] });
+        const user = await this.userRepo.findOne(userId, { relations: ['sponsoredBy', 'epin'] });
 
         if (!user) {
             throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -166,8 +152,6 @@ export class AccountsService {
             await trx.save(user);
             await this.incomeService.generateIncomes(user, trx);
         });
-
-        this.rankService.generateRanks(user.id);
 
         return user.toResponseObject();
     }

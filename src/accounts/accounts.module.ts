@@ -4,7 +4,6 @@ import { AccountsService } from './accounts.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { EPin } from 'src/database/entity/epin.entity';
-import { RankModule } from 'src/rank/rank.module';
 import { IncomeModule } from 'src/income/income.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -15,7 +14,6 @@ import { AWSHandler } from 'src/common/aws/aws';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, EPin]),
-    RankModule,
     IncomeModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

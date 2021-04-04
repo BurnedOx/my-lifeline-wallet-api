@@ -25,12 +25,9 @@ export interface UserRO {
 
 export interface UserDetailsRO {
     wallet: number;
-    rank: RankName | null;
     direct: number;
     downline: number;
-    singleLeg: number;
     levelIncome: number;
-    singleLegIncome: number;
     totalWithdrawal: number;
     totalIncome: number;
 }
@@ -42,12 +39,6 @@ export interface MemberRO {
     status: 'active' | 'inactive';
     activatedAt: Date | null;
     createdAt: Date;
-}
-
-export interface SingleLegMemberRO {
-    id: string;
-    name: string;
-    activatedAt: Date | null;
 }
 
 export interface EpinRO {
@@ -77,15 +68,6 @@ export interface WithdrawalRO extends BankDetails {
     status: 'paid' | 'unpaid' | 'cancelled';
     createdAt: Date;
     updatedAt: Date;
-}
-
-export type RankName = 'RANK1' | 'RANK2' | 'RANK3' | 'RANK4' | 'RANK5' | 'RANK6' | 'RANK7' | 'RANK8' | 'RANK9' | 'RANK10';
-
-export interface RankData {
-    type: RankName;
-    direct: number;
-    company: number;
-    income: number;
 }
 
 export interface TransactionRO {

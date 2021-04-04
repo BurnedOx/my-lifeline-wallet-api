@@ -1,10 +1,9 @@
 import { Base } from "./base.entity";
 import { Column, Entity, OneToMany, JoinColumn, ManyToOne, BeforeInsert, OneToOne, ManyToMany, JoinTable } from "typeorm";
-import { BankDetails, UserRO, MemberRO, SingleLegMemberRO } from "src/interfaces";
+import { BankDetails, UserRO, MemberRO } from "src/interfaces";
 import * as bcrypct from 'bcryptjs';
 import { EPin } from "./epin.entity";
 import { Income } from "./income.entity";
-import { Rank } from "./rank.entity";
 import { Withdrawal } from "./withdrawal.entity";
 import { Transaction } from "./transaction.entity";
 import { from } from "rxjs";
@@ -29,9 +28,6 @@ export class User extends Base {
 
     @Column({ nullable: true, default: null })
     activatedAt: Date | null;
-
-    @Column({ default: 0 })
-    totalSingleLeg: number;
 
     @Column({ type: 'jsonb', nullable: true, default: null })
     bankDetails: BankDetails | null;
@@ -58,13 +54,6 @@ export class User extends Base {
 
     @OneToMany(() => Income, income => income.from)
     generatedIncomes: Income[];
-
-    @OneToMany(() => Rank, rank => rank.owner)
-    ranks: Rank[];
-
-    @ManyToOne(() => Rank, rank => rank.direct, { nullable: true })
-    @JoinColumn()
-    generatedRank: Rank | null;
 
     @OneToMany(() => Withdrawal, withdrawal => withdrawal.owner)
     withdrawals: Withdrawal[];
@@ -119,11 +108,6 @@ export class User extends Base {
     toMemberObject(level: number): MemberRO {
         const { id, name, status, activatedAt, createdAt } = this;
         return { id, name, level, status, createdAt, activatedAt };
-    }
-
-    toSingleLegMemberObject(): SingleLegMemberRO {
-        const { id, name, activatedAt } = this;
-        return { id, name, activatedAt };
     }
 
     async comparePassword(attempt: string) {

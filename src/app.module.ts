@@ -8,7 +8,6 @@ import { CommonModule } from './common/common.module';
 import { EpinModule } from './epin/epin.module';
 import { MembersModule } from './members/members.module';
 import { IncomeModule } from './income/income.module';
-import { RankModule } from './rank/rank.module';
 import { WithdrawalModule } from './withdrawal/withdrawal.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { ConfigModule } from '@nestjs/config';
@@ -21,7 +20,7 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
       envFilePath: '.env'
     }),
-    AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, RankModule, WithdrawalModule, TransactionModule
+    AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, WithdrawalModule, TransactionModule
   ],
   controllers: [AppController],
   providers: [AppService],
