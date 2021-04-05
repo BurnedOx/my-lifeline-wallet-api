@@ -20,11 +20,12 @@ import { AWSHandler } from 'src/common/aws/aws';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('SECRET'),
-        signOptions: {expiresIn: '10000s'}
-      })
-    })
+        signOptions: { expiresIn: '10000s' },
+      }),
+    }),
   ],
   controllers: [AccountsController],
-  providers: [AccountsService, JwtAuthGuard, JwtStrategy, AWSHandler]
+  providers: [AccountsService, JwtAuthGuard, JwtStrategy, AWSHandler],
+  exports: [AccountsService],
 })
-export class AccountsModule { }
+export class AccountsModule {}

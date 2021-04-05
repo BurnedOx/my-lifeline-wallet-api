@@ -11,6 +11,9 @@ import { IncomeModule } from './income/income.module';
 import { WithdrawalModule } from './withdrawal/withdrawal.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { ConfigModule } from '@nestjs/config';
+import { PaymentModule } from './payment/payment.module';
+import { UserEpinModule } from './user-epin/user-epin.module';
+import { EpinHistoryModule } from './epin-history/epin-history.module';
 
 @Module({
   imports: [
@@ -20,7 +23,7 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
       envFilePath: '.env'
     }),
-    AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, WithdrawalModule, TransactionModule
+    AccountsModule, CommonModule, EpinModule, MembersModule, IncomeModule, WithdrawalModule, TransactionModule, PaymentModule, UserEpinModule, EpinHistoryModule
   ],
   controllers: [AppController],
   providers: [AppService],
