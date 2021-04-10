@@ -42,7 +42,7 @@ export class User extends Base {
   @Column({ nullable: true, default: null })
   activatedAt: Date | null;
 
-  @Column({ type: 'jsonb', nullable: true, default: null })
+  @Column({ type: 'json', nullable: true, default: null })
   bankDetails: BankDetails | null;
 
   @Column({ nullable: true, default: null })

@@ -17,7 +17,7 @@ export class Withdrawal extends Base {
     @Column({ default: 'By NEFT' })
     paymentType: string;
 
-    @Column({ type: 'jsonb', nullable: true, default: null })
+    @Column({ type: 'json', nullable: true, default: null })
     bankDetails: BankDetails | null;
 
     @Column({ default: 'unpaid' })
