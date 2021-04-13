@@ -1,7 +1,7 @@
 import { Entity, ManyToOne, JoinColumn, Column } from 'typeorm';
 import { Base } from './base.entity';
 import { User } from './user.entity';
-import { IncomeRO, TransactionRO } from 'src/interfaces';
+import { IncomeRO } from 'src/interfaces';
 
 @Entity()
 export class Income extends Base {
@@ -10,9 +10,6 @@ export class Income extends Base {
 
   @Column({ type: 'numeric', precision: 15, scale: 2 })
   amount: string;
-
-  @Column({ type: 'numeric', precision: 15, scale: 2, default: '0' })
-  remaining: string;
 
   @ManyToOne(
     () => User,
@@ -38,12 +35,11 @@ export class Income extends Base {
   }
 
   toResponseObject(): IncomeRO {
-    const { id, level, amount, remaining, owner, from, createdAt } = this;
+    const { id, level, amount, owner, from, createdAt } = this;
     return {
       id,
       level,
       amount,
-      remaining,
       createdAt,
       ownerId: owner.id,
       from: { id: from.id, name: from.name },

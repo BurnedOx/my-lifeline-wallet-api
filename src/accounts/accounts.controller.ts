@@ -12,7 +12,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
-import { ValidationPipe } from '../common/validation.pipe';
+import { ValidationPipe } from '@common/validation.pipe';
 import {
   RegistrationDTO,
   LoginDTO,
@@ -22,7 +22,7 @@ import {
   BankDTO,
   WalletDTO,
 } from './accounts.dto';
-import { JwtAuthGuard } from '../common/guards/jwt.guard';
+import { JwtAuthGuard } from '@common/guards/jwt.guard';
 import { HeaderDTO } from 'src/common/dto/base-header.dto';
 import { CustomHeader } from 'src/common/decorators/common-header-decorator';
 import { hasRoles } from 'src/common/decorators/roles-decorator';

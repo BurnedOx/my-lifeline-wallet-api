@@ -1,5 +1,5 @@
 {
-  "name": "ipl-api",
+  "name": "indo-appie-api",
   "version": "0.0.1",
   "description": "",
   "author": "Mainak Debnath",
@@ -44,6 +44,7 @@
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
+    "paytm-pg-node-sdk": "^1.0.4",
     "pg": "^8.2.1",
     "razorpay": "^2.0.6",
     "reflect-metadata": "^0.1.13",

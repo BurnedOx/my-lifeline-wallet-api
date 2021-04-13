@@ -1,7 +1,6 @@
 import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Income } from 'src/database/entity/income.entity';
-import { Repository, EntityManager, getManager } from 'typeorm';
+import { EntityManager, getManager } from 'typeorm';
 import { User } from 'src/database/entity/user.entity';
 import { levelIncomeAmount } from 'src/common/costraints';
 import { Transaction } from 'src/database/entity/transaction.entity';
@@ -36,12 +35,12 @@ export class IncomeService {
       incomes.map(i => i.id),
       { relations: ['owner'] },
     );
-    for (let i of incomesWithOwner) {
+    for (const i of incomesWithOwner) {
       const owner = await User.findOne(i.owner.id);
       owner.balance = `${parseFloat(owner.balance) - parseFloat(i.amount)}`;
       await trx.save(owner);
     }
-    for (let i of incomesWithOwner) {
+    for (const i of incomesWithOwner) {
       await trx.remove(i);
     }
   }
@@ -51,21 +50,35 @@ export class IncomeService {
       const from = await User.findOne(userId, { relations: ['sponsoredBy'] });
       await getManager().transaction(async trx => {
         if (from.status === 'inactive') return;
-        let level: number = 0;
-        let sponsor = from;
-        while (level <= 7 && sponsor.role === 'user') {
+        let level = 1;
+        let sponsor: User = await User.findOne(from.sponsoredBy.id, { relations: ['sponsoredBy'] });
+        while (level <= 5 && sponsor.role === 'user') {
           const amount = `${levelIncomeAmount[level]}`;
+
+          sponsor.balance = `${parseFloat(sponsor.balance) + amount}`;
+          await trx.save(sponsor);
+
           const income = Income.create({
             owner: sponsor,
-            remaining: amount,
             level,
             from,
             amount,
           });
           await trx.save(income);
+
+          const transaction = Transaction.create({
+            currentBalance: sponsor.balance,
+            type: 'credit',
+            remarks: `From level ${income.level} income`,
+            owner: sponsor,
+            amount: `${amount}`,
+          });
+          await trx.save(transaction);
+
           sponsor = await trx.findOne(User, sponsor.sponsoredBy.id, {
             relations: ['sponsoredBy'],
           });
+
           level++;
         }
       });
@@ -75,34 +88,31 @@ export class IncomeService {
     }
   }
 
-  @Cron('0 0 * * 1-5', { timeZone: 'Asia/Kolkata' })
-  generateTrx() {
-    return getManager().transaction(async trx => {
-      try {
-        const incomes = await Income.getToBePaid();
-        for (let income of incomes) {
-          const amount = parseFloat(income.amount) / 20;
-          const owner = await trx.findOne(User, income.owner.id);
-
-          owner.balance = `${parseFloat(owner.balance) + amount}`;
-          trx.save(owner);
-
-          income.remaining = `${parseFloat(income.remaining) - amount}`;
-          trx.save(income);
-
-          const transaction = Transaction.create({
-            currentBalance: owner.balance,
-            type: 'credit',
-            remarks: `From level ${income.level} income`,
-            owner: owner,
-            amount: `${amount}`,
-          });
-          await trx.save(transaction);
-        }
-        this.logging.log('Successfully generated income trx');
-      } catch (e) {
-        this.logging.error(e);
-      }
-    });
-  }
+  // @Cron('0 0 * * 1-5', { timeZone: 'Asia/Kolkata' })
+  // generateTrx() {
+  //   return getManager().transaction(async trx => {
+  //     try {
+  //       const incomes = await Income.getToBePaid();
+  //       for (const income of incomes) {
+  //         const amount = parseFloat(income.amount) / 20;
+  //         const owner = await trx.findOne(User, income.owner.id);
+  //
+  //         owner.balance = `${parseFloat(owner.balance) + amount}`;
+  //         trx.save(owner);
+  //
+  //         const transaction = Transaction.create({
+  //           currentBalance: owner.balance,
+  //           type: 'credit',
+  //           remarks: `From level ${income.level} income`,
+  //           owner: owner,
+  //           amount: `${amount}`,
+  //         });
+  //         await trx.save(transaction);
+  //       }
+  //       this.logging.log('Successfully generated income trx');
+  //     } catch (e) {
+  //       this.logging.error(e);
+  //     }
+  //   });
+  // }
 }

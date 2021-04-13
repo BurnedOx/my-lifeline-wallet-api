@@ -16,7 +16,6 @@ import { UserDetailsRO, UserFilter, UserRO } from 'src/interfaces';
 import { JwtService } from '@nestjs/jwt';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { AWSHandler } from 'src/common/aws/aws';
 import { Transaction } from 'src/database/entity/transaction.entity';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
@@ -33,8 +32,6 @@ export class AccountsService {
     private readonly incomeService: IncomeService,
 
     private readonly jwtService: JwtService,
-
-    private readonly aws: AWSHandler,
   ) {}
 
   findOne(id: string): Observable<UserRO> {
@@ -56,7 +53,7 @@ export class AccountsService {
     return [users.map(user => user.toResponseObject()), total];
   }
 
-  async login(data: LoginDTO, admin: boolean = false) {
+  async login(data: LoginDTO, admin = false) {
     const { userId, password } = data;
     const user = await User.findOne(userId, {
       relations: ['sponsoredBy', 'epin'],
@@ -94,15 +91,6 @@ export class AccountsService {
     });
     await user.save();
     const token = await this.generateJWT(user.id);
-    this.aws.sendSMS(
-      `Wellcome to IPL\n
-            You have successfully registered\n
-            Your User Id: ${user.id}\n
-            Your Password: ${password}\n
-            Please visit: http://ipl-app.s3-website.us-east-2.amazonaws.com/`,
-      `${mobile}`,
-      'ipl',
-    );
     return user.toResponseObject(token);
   }
 
@@ -116,9 +104,6 @@ export class AccountsService {
     const { balance, sponsored, incomes, tasks, withdrawals } = user;
 
     const incomeAmounts = incomes.map(i => parseFloat(i.amount));
-    const selfIncomeAmounts = incomes
-      .filter(i => i.level === 0)
-      .map(i => parseFloat(i.amount));
     const taskAmounts = tasks.map(t => parseFloat(t.amount));
     const withdrawAmounts = withdrawals
       .filter(w => w.status === 'paid')
@@ -127,10 +112,7 @@ export class AccountsService {
     const downline = (await User.getDownline(user)).length;
     const levelIncome =
       incomeAmounts.length !== 0 ? incomeAmounts.reduce((a, b) => a + b) : 0;
-    const selfIncome =
-      selfIncomeAmounts.length !== 0
-        ? selfIncomeAmounts.reduce((a, b) => a + b)
-        : 0;
+    const selfIncome = 0;
     const taskIncome =
       taskAmounts.length !== 0 ? taskAmounts.reduce((a, b) => a + b) : 0;
     const totalWithdrawal =
@@ -167,7 +149,7 @@ export class AccountsService {
   }
 
   async activateAccount(epinId: string, userId: string) {
-    let epin = await EPin.findOne(epinId, { relations: ['owner'] });
+    const epin = await EPin.findOne(epinId, { relations: ['owner'] });
 
     if (!epin) {
       throw new HttpException('Invalid E-Pin', HttpStatus.NOT_FOUND);
@@ -283,7 +265,7 @@ export class AccountsService {
   async resetBalance() {
     const users = await User.find();
     await getManager().transaction(async trx => {
-      for (let user of users) {
+      for (const user of users) {
         user.balance = '0';
         await trx.save(user);
       }

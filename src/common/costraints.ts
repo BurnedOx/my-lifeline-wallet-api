@@ -1,12 +1,19 @@
 export const levelIncomeAmount = {
-  0: 100,
-  1: 100,
-  2: 40,
-  3: 40,
-  4: 20,
-  5: 20,
-  6: 10,
-  7: 10,
+  1: 150,
+  2: 70,
+  3: 30,
+  4: 30,
+  5: 40,
+};
+
+export enum CASHBACK_FLAG {
+  OFF,
+  ON,
+}
+
+export const cashbackIncomePercentage = {
+  offer: 10,
+  recharge: 2,
 };
 
 export const USER_CSV_FIELDS = [

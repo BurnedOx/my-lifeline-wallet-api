@@ -1,3 +1,5 @@
+import { PaymentStatus, OrderType } from "@entity/payment.entity";
+
 export interface BankDetails {
   accountName: string;
   bankName: string;
@@ -58,7 +60,6 @@ export interface IncomeRO {
   from: Pick<UserRO, 'id' | 'name'>;
   level: number;
   amount: string;
-  remaining: string;
   createdAt: Date;
 }
 
@@ -134,4 +135,21 @@ export interface UserFilter {
     min: number;
     max: number;
   };
+}
+
+export interface PaymentRO {
+  id: string;
+  txnToken: string;
+  signature: string;
+  amount: number;
+  status: PaymentStatus;
+  orderType: OrderType;
+  extra: string | null;
+  owner: {
+    id: string;
+    name: string;
+    mobile: number;
+  };
+  createdAt: Date;
+  updatedAt: Date;
 }

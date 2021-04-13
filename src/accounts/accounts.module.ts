@@ -6,7 +6,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { JwtStrategy } from 'src/common/guards/jwt.strategy';
-import { AWSHandler } from 'src/common/aws/aws';
 import { BullModule } from '@nestjs/bull';
 import { AccountProcessor } from './accounts.processor';
 
@@ -36,7 +35,6 @@ import { AccountProcessor } from './accounts.processor';
     AccountsService,
     JwtAuthGuard,
     JwtStrategy,
-    AWSHandler,
     AccountProcessor,
   ],
   exports: [AccountsService],

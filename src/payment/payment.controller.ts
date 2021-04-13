@@ -12,17 +12,17 @@ export class PaymentController {
     @Post('activation')
     @UseGuards(JwtAuthGuard)
     payForActivation(@CustomHeader() headers: HeaderDTO) {
-        return this.paymentService.payForActivation(headers.userId);
+        return this.paymentService.payForPaytmActivation(headers.userId);
     }
 
-    @Post('epins')
-    @UseGuards(JwtAuthGuard)
-    payForEpins(@CustomHeader() headers: HeaderDTO, @Body() data: EpinPurchaseDTO) {
-        return this.paymentService.payForEpins(headers.userId, data.count);
-    }
-
-    @Post('verification')
-    verify(@Body() data: any,  @RazorpayHeader() headers: RazorpayHeaderDTO) {
-        return this.paymentService.verifyPayment(headers.razorpaySignature, data);
-    }
+    // @Post('epins')
+    // @UseGuards(JwtAuthGuard)
+    // payForEpins(@CustomHeader() headers: HeaderDTO, @Body() data: EpinPurchaseDTO) {
+    //     return this.paymentService.payForEpins(headers.userId, data.count);
+    // }
+    //
+    // @Post('verification')
+    // verify(@Body() data: any,  @RazorpayHeader() headers: RazorpayHeaderDTO) {
+    //     return this.paymentService.verifyPayment(headers.razorpaySignature, data);
+    // }
 }

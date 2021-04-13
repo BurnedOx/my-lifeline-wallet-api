@@ -7,6 +7,8 @@ import { ConfigService } from '@nestjs/config';
 import { EPin } from 'src/database/entity/epin.entity';
 import { EPIN_PRICE } from 'src/common/costraints';
 import { UserEpinService } from 'src/user-epin/user-epin.service';
+import {PaytmHandler} from "@common/paytm/paytm";
+import {OrderType, Payment} from "@entity/payment.entity";
 
 @Injectable()
 export class PaymentService {
@@ -15,9 +17,33 @@ export class PaymentService {
         private readonly userEpinService: UserEpinService,
         private readonly configService: ConfigService,
         private readonly razorpay: RazorpayHandler,
+        private readonly paytm: PaytmHandler,
     ) { }
 
-    async payForActivation(userId: string) {
+    async payForPaytmActivation(userId: string) {
+        const owner = await this.getUser(userId);
+        const res = await this.paytm.pay(owner, EPIN_PRICE);
+
+        const signature: string = res.responseObject.head.signature;
+        const txnToken: string = res.responseObject.body.txnToken;
+        const id: string = res.orderId;
+        const amount: number = res.amount;
+        const extra: string = res.jsonResponse;
+
+        const payment = await Payment.create({
+            id,
+            amount,
+            signature,
+            txnToken,
+            extra,
+            owner,
+            orderType: OrderType.EpinPurhase,
+        }).save();
+
+        return payment.responseObj;
+    }
+
+    async payForRazorpayActivation(userId: string) {
         const { name, mobile } = await this.getUser(userId);
 
         try {

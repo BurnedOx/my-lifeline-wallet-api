@@ -27,6 +27,7 @@ import { UserEpin } from './userEpin.entity';
 import { EpinHistory } from './epinHistory.entity';
 import { PagingQueryDTO } from '@common/dto/paging-query.dto';
 import { Task } from './task.entity';
+import { Payment } from './payment.entity';
 
 @Entity()
 export class User extends Base {
@@ -48,7 +49,7 @@ export class User extends Base {
   @Column({ nullable: true, default: null })
   activatedAt: Date | null;
 
-  @Column({ type: 'jsonb', nullable: true, default: null })
+  @Column({ type: 'json', nullable: true, default: null })
   bankDetails: BankDetails | null;
 
   @Column({ nullable: true, default: null })
@@ -120,6 +121,12 @@ export class User extends Base {
     epinHistory => epinHistory.owner,
   )
   epinHistory: EpinHistory[];
+
+  @OneToMany(
+    () => Payment,
+    payment => payment.owner,
+  )
+  payments: Payment[];
 
   @BeforeInsert()
   async hashPassword() {
@@ -252,10 +259,10 @@ export class User extends Base {
     const build = (
       root: User,
       downline: { member: User; level: number }[] = [],
-      level: number = 1,
+      level = 1,
     ) => {
       const directs = members.filter(m => m.sponsoredBy.id === root.id);
-      for (let member of directs) {
+      for (const member of directs) {
         downline.push({ member, level });
         build(member, downline, level + 1);
       }
