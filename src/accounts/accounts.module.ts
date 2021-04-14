@@ -20,22 +20,22 @@ import { AccountProcessor } from './accounts.processor';
         signOptions: { expiresIn: '10000s' },
       }),
     }),
-    BullModule.registerQueueAsync({
-      name: 'account',
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        name: 'account',
-        redis: configService.get('REDIS_URL'),
-      }),
-    }),
+    // BullModule.registerQueueAsync({
+    //   name: 'account',
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: async (configService: ConfigService) => ({
+    //     name: 'account',
+    //     redis: configService.get('REDIS_URL'),
+    //   }),
+    // }),
   ],
   controllers: [AccountsController],
   providers: [
     AccountsService,
     JwtAuthGuard,
     JwtStrategy,
-    AccountProcessor,
+    // AccountProcessor,
   ],
   exports: [AccountsService],
 })

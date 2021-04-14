@@ -26,8 +26,8 @@ export class AccountsService {
   private readonly logger = new Logger(AccountsService.name);
 
   constructor(
-    @InjectQueue('account')
-    private readonly accountQueue: Queue,
+    // @InjectQueue('account')
+    // private readonly accountQueue: Queue,
 
     private readonly incomeService: IncomeService,
 
@@ -173,12 +173,13 @@ export class AccountsService {
     user.status = 'active';
     user.activatedAt = new Date();
     await User.save(user);
+    await this.incomeService.generateIncomes(user.id);
 
-    try {
-      await this.accountQueue.add('distribution', { userId: user.id });
-    } catch (e) {
-      this.logger.error(`Error queueing distribution for id ${user.id}`);
-    }
+    // try {
+    //   await this.accountQueue.add('distribution', { userId: user.id });
+    // } catch (e) {
+    //   this.logger.error(`Error queueing distribution for id ${user.id}`);
+    // }
 
     return user.toResponseObject();
   }
