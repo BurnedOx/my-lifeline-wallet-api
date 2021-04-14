@@ -1,9 +1,9 @@
 export const levelIncomeAmount = {
-  1: 150,
-  2: 70,
-  3: 30,
-  4: 30,
-  5: 40,
+  1: 100,
+  2: 50,
+  3: 15,
+  4: 15,
+  5: 20,
 };
 
 export enum CASHBACK_FLAG {
