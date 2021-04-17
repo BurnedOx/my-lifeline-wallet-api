@@ -55,4 +55,4 @@ export const USER_CSV_FIELDS = [
   },
 ];
 
-export const EPIN_PRICE = 599;
+export const EPIN_PRICE = 399;

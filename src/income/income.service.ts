@@ -53,7 +53,7 @@ export class IncomeService {
         let level = 1;
         let sponsor: User = await User.findOne(from.sponsoredBy.id, { relations: ['sponsoredBy'] });
         while (level <= 5 && sponsor.role === 'user') {
-          const amount = `${levelIncomeAmount[level]}`;
+          const amount: number = levelIncomeAmount[level];
 
           sponsor.balance = `${parseFloat(sponsor.balance) + amount}`;
           await trx.save(sponsor);
@@ -62,7 +62,7 @@ export class IncomeService {
             owner: sponsor,
             level,
             from,
-            amount,
+            amount: `${amount}`,
           });
           await trx.save(income);
 
