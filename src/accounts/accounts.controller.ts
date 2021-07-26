@@ -21,6 +21,8 @@ import {
   ProfileDTO,
   BankDTO,
   WalletDTO,
+  RequestOTPDTO,
+  VerifyOTPDTO,
 } from './accounts.dto';
 import { JwtAuthGuard } from '@common/guards/jwt.guard';
 import { HeaderDTO } from 'src/common/dto/base-header.dto';
@@ -78,6 +80,18 @@ export class AccountsController {
       console.log('error:', error.message);
       res.status(500).send(error.message);
     }
+  }
+
+  @Post('otp/request')
+  @UsePipes(new ValidationPipe())
+  requestOTP(@Body() data: RequestOTPDTO) {
+    return this.accountsService.forgotPassword(data.mobile);
+  }
+
+  @Post('otp/reset-password')
+  @UsePipes(new ValidationPipe())
+  verifyTwillo(@Body() data: VerifyOTPDTO) {
+    return this.accountsService.verifyOTP(data.mobile, data.code, data.id, data.password);
   }
 
   @Get('users')
@@ -207,7 +221,7 @@ export class AccountsController {
     @Param('id') userId: string,
     @Body('password') password: string,
   ) {
-    return this.accountsService.forgotPassword(userId, password);
+    return this.accountsService.resetPassword(userId, password);
   }
 
   @Put('bank')

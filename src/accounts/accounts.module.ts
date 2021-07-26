@@ -8,6 +8,7 @@ import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { JwtStrategy } from 'src/common/guards/jwt.strategy';
 import { BullModule } from '@nestjs/bull';
 import { AccountProcessor } from './accounts.processor';
+import { TwilioHandler } from '@common/twilio/twilio';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AccountProcessor } from './accounts.processor';
     AccountsService,
     JwtAuthGuard,
     JwtStrategy,
+    TwilioHandler,
     // AccountProcessor,
   ],
   exports: [AccountsService],

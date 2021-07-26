@@ -20,6 +20,7 @@ import { Transaction } from 'src/database/entity/transaction.entity';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { PagingQueryDTO } from '@common/dto/paging-query.dto';
+import { TwilioHandler } from '@common/twilio/twilio';
 
 @Injectable()
 export class AccountsService {
@@ -32,6 +33,8 @@ export class AccountsService {
     private readonly incomeService: IncomeService,
 
     private readonly jwtService: JwtService,
+
+    private readonly twilio: TwilioHandler,
   ) {}
 
   findOne(id: string): Observable<UserRO> {
@@ -51,6 +54,37 @@ export class AccountsService {
   ): Promise<[UserRO[], number]> {
     const [users, total] = await User.findAll(filter, query, search);
     return [users.map(user => user.toResponseObject()), total];
+  }
+
+  async forgotPassword(mobile: string) {
+    const users = await User.find();
+    const userIds = this.getUserIdsFromMobile(users, mobile);
+    await this.twilio.sendCode(mobile);
+    return { userIds, mobile };
+  }
+
+  async verifyOTP(mobile: string, code: string, id: string, password: string) {
+    const isVerified = await this.twilio.verify(code, mobile);
+
+    if (!isVerified) {
+      throw new HttpException('check your otp!', HttpStatus.BAD_REQUEST);
+    }
+
+    const users = await User.find();
+    const userIds = this.getUserIdsFromMobile(users, mobile);
+
+    if (!userIds.includes(id)) {
+      throw new HttpException(
+        'This id is not registered with this number',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const user = users.find(u => u.id === id);
+    user.password = await bcrypct.hash(password, 10);
+    await user.save();
+
+    return { status: 'ok' };
   }
 
   async login(data: LoginDTO, admin = false) {
@@ -216,7 +250,7 @@ export class AccountsService {
     return 'ok';
   }
 
-  async forgotPassword(id: string, newPassword: string) {
+  async resetPassword(id: string, newPassword: string) {
     const user = await User.findOne(id);
 
     if (!user) {
@@ -310,5 +344,22 @@ export class AccountsService {
 
   private generateJWT(userId: string) {
     return this.jwtService.signAsync({ userId });
+  }
+
+  private getUserIdsFromMobile(users: User[], mobile: string) {
+    const ids = users
+      .filter(u =>
+        new RegExp('^([0|+[0-9]{1,5})?' + u.mobile + '$').exec(mobile),
+      )
+      .map(u => u.id);
+
+    if (ids.length === 0) {
+      throw new HttpException(
+        'Sorry! This mobile is not registered!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return ids;
   }
 }
